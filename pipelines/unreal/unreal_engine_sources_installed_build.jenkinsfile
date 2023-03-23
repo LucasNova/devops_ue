@@ -70,6 +70,7 @@ pipeline {
                     -script="%BUILD_DIR%\\Engine\\Build\\InstalledEngineBuild.xml" ^
                     -clean ^
                     -set:HostPlatformOnly=true ^
+                    -set:VS2019=true ^
                     -set:WithClient=true ^
                     -set:WithServer=true ^
                     -set:WithDDC=false ^
