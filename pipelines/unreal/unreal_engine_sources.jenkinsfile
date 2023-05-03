@@ -67,8 +67,8 @@ pipeline {
         stage('Build') {
             steps {
                 bat '''
-                    "%MS_BUILD_PATH%" "%BUILD_DIR%\\UE5.sln" ^
-                    -target:"Engine\\UE5" ^
+                    "%MS_BUILD_PATH%" "%BUILD_DIR%\\UE4.sln" ^
+                    -target:"Engine\\UE4" ^
                     -property:Platform="%UE_BUILD_PLATFORM%";Configuration="%UE_BUILD_CONFIGURATION%" ^
                     -verbosity:"%UE_BUILD_VERBOSITY%"
                 '''
