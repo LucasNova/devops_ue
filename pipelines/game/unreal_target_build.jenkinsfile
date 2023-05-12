@@ -20,6 +20,7 @@ pipeline {
         GIT_BRANCH_GAME = 'master'
         GIT_CLONE_TIMEOUT_MIN = 60
         UAT_PATH = 'C:\\Epic Games\\UE Binary\\UE_5.0\\Engine\\Build\\BatchFiles\\RunUAT.bat'
+        ANDROID_INSTALL_PATH = 'D:\\JenkinsJobs\\UnrealOculus\\Engine\\Extras\\Android\\SetupAndroid.bat'
         PROJECT_PATH = "$BUILD_DIR\\TPS.uproject"
         // ARCHIVE_PATH = "c:\\JenkinsJobs\\Artifacts\\$JOB_NAME\\$BUILD_NUMBER"
         ARCHIVE_PATH = "$BUILD_DIR\\Build"
@@ -52,6 +53,9 @@ pipeline {
         }
         stage('Build') {
             steps {
+                bat '''
+                    "%ANDROID_INSTALL_PATH%"
+                '''
                 bat '''
                     "%UAT_PATH%" BuildCookRun ^
                     -project="%PROJECT_PATH%" ^
