@@ -69,7 +69,8 @@ pipeline {
                     -target="Make Installed Build %UE_BUILD_PLATFORM%" ^
                     -script="%BUILD_DIR%\\Engine\\Build\\InstalledEngineBuild.xml" ^
                     -clean ^
-                    -set:HostPlatformOnly=true ^
+                    -set:WithWin64=true ^
+                    -set:WithAndroid=true ^
                     -set:VS2019=true ^
                     -set:WithClient=true ^
                     -set:WithServer=true ^
