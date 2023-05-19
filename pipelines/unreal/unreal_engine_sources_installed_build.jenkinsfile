@@ -71,10 +71,17 @@ pipeline {
                     -clean ^
                     -set:WithWin64=true ^
                     -set:WithAndroid=true ^
+                    -set:WithMac=false ^
+                    -set:WithWin32=false ^
+                    -set:WithIOS=false ^
+                    -set:WithTVOS=false ^
+                    -set:WithLumin=false ^
+                    -set:WithLinux=false ^
+                    -set:WithHTML5=false ^
                     -set:VS2019=true ^
                     -set:WithClient=true ^
                     -set:WithServer=true ^
-                    -set:WithDDC=false ^
+                    -set:WithDDC=true ^
                     -set:GameConfigurations=%UE_BUILD_CONFIGURATION% ^
                     -set:BuiltDirectory="%BUILD_DIR%"
                 '''
