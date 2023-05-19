@@ -77,7 +77,6 @@ pipeline {
                     -set:WithTVOS=false ^
                     -set:WithLumin=false ^
                     -set:WithLinux=false ^
-                    -set:WithHTML5=false ^
                     -set:VS2019=true ^
                     -set:WithClient=true ^
                     -set:WithServer=true ^
