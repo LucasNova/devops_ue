@@ -29,6 +29,9 @@ pipeline {
         SLACK_CHANNEL = 'tps-game-builds'
         PLATFORM = 'Win64' // ['Android', 'Linux'..]
         CONFIG = 'Development' // ['Development', 'Shipping', 'DebugGame']
+        VERSION_MAJOR = "1"
+        VERSION_MINOR = "0"
+        VERSIONBATCHER = "$BUILD_DIR\\Script\VersionBatcher.bat"
     }*/
 
     stages {
@@ -53,6 +56,9 @@ pipeline {
         }
         stage('Build') {
             steps {
+                bat '''
+                    "%VERSIONBATCHER%" -version="%VERSION_MAJOR%.%VERSION_MINOR%.%BUILD_NUMBER%"
+                '''
                 bat '''
                     "%ANDROID_INSTALL_PATH%"
                 '''
