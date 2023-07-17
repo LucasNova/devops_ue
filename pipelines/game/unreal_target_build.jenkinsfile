@@ -78,7 +78,7 @@ pipeline {
         }
         stage('Archive artifacts') {
             steps {
-                zip zipFile: 'Archive/%VERSION_MAJOR%.%VERSION_MINOR%.%BUILD_NUMBER%.zip', archive: false, dir: "%ARCHIVE_PATH%"
+                zip zipFile: 'Archive/%VERSION_MAJOR%.%VERSION_MINOR%.%BUILD_NUMBER%.zip', archive: false, dir: 'Build'
                 archiveArtifacts artifacts: "Archive/%VERSION_MAJOR%.%VERSION_MINOR%.%BUILD_NUMBER%.zip", fingerprint: true, onlyIfSuccessful: true
             }
         }
