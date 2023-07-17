@@ -78,7 +78,7 @@ pipeline {
         }
         stage('Archive artifacts') {
             steps {
-                archiveArtifacts artifacts: "$ZIP_DIR"
+                archiveArtifacts artifacts: "$ZIP_DIR", fingerprint: true, onlyIfSuccessful: true
             }
         }
         stage('Upload to AWS') {
