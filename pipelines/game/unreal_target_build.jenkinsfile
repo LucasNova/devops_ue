@@ -32,6 +32,8 @@ pipeline {
         VERSION_MAJOR = "1"
         VERSION_MINOR = "0"
         VERSIONBATCHER = "$BUILD_DIR\\Script\VersionBatcher.bat"
+        BUCKETNAME = ""
+        DESTINATION_FOLDER = ""
     }*/
 
     stages {
@@ -79,6 +81,23 @@ pipeline {
                 archiveArtifacts artifacts: "$ZIP_DIR"
             }
         }
+        stage('Retrieve Artifacts') {
+            steps {
+                script {
+                    def artifactPath = build.getArtifactManager().root().child("$ZIP_DIR").getRemote()
+                    echo "Path to ZIP file: ${artifactPath}"
+                    env.ZIP_FILE_PATH = artifactPath // Store the artifact path in an environment variable for later use
+                }
+            }
+        }
+        stage('Upload to AWS') {
+              steps {
+                  withAWS(region:'eu-north-1',credentials:'jenkins-cred') {
+                  sh 'echo "Uploading content with AWS creds"'
+                      s3Upload(pathStyleAccessEnabled: true, payloadSigningEnabled: true, file: env.ZIP_FILE_PATH, bucket:'%BUCKETNAME%', path: '%DESTINATION_FOLDER%')
+                  }
+              }
+         }
     }
 
     post {
