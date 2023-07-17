@@ -78,13 +78,13 @@ pipeline {
         }
         stage('Archive artifacts') {
             steps {
-                zip zipFile: 'Archive/%VERSION_MAJOR%.%VERSION_MINOR%.%BUILD_NUMBER%.zip', archive: false, dir: 'Build'
-                archiveArtifacts artifacts: "Archive/%VERSION_MAJOR%.%VERSION_MINOR%.%BUILD_NUMBER%.zip", fingerprint: true, onlyIfSuccessful: true
+                zip zipFile: "Archive/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip", archive: false, dir: 'Build'
+                archiveArtifacts artifacts: "Archive/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip", fingerprint: true, onlyIfSuccessful: true
             }
         }
         stage('Upload to AWS') {
             steps {
-                s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: '${BUCKETNAME}/${DESTINATION_FOLDER}', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: true, selectedRegion: 'eu-north-1', showDirectlyInBrowser: false, sourceFile: 'Archive/%VERSION_MAJOR%.%VERSION_MINOR%.%BUILD_NUMBER%.zip', storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'vrsim', userMetadata: []
+                s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: '${BUCKETNAME}/${DESTINATION_FOLDER}', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: true, selectedRegion: 'eu-north-1', showDirectlyInBrowser: false, sourceFile: "Archive/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'vrsim', userMetadata: []
             }
         }
     }
