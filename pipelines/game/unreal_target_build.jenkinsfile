@@ -34,16 +34,12 @@ pipeline {
         VERSIONBATCHER = "$BUILD_DIR\\Script\VersionBatcher.bat"
         BUCKETNAME = ""
         DESTINATION_FOLDER = ""
+        DISCORD_HOOK = "url"
     }*/
 
     stages {
         stage('Git clone') {
             steps {
-                slackSend channel: "$SLACK_CHANNEL",
-                    color: "$currentBuild.previousBuild" == 'null' ? '#18A558' :
-                    ColorFromBuildResult("$currentBuild.previousBuild.result"),
-                    message:"Build started: ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
-
                 checkout([$class: 'GitSCM',
                     branches: [[name: "$GIT_BRANCH_GAME"]],
                     extensions: [
@@ -87,13 +83,10 @@ pipeline {
                 s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: '${BUCKETNAME}/${DESTINATION_FOLDER}', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: false, noUploadOnFailure: true, selectedRegion: 'eu-north-1', showDirectlyInBrowser: false, sourceFile: "Archive/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'vrsim', userMetadata: []
             }
         }
-    }
-
-    post {
-        always {
-            slackSend channel: "$SLACK_CHANNEL",
-                color: ColorFromBuildResult("$currentBuild.currentResult"),
-                message:"Build $currentBuild.currentResult: ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+        stage('Send Notifiers'){
+            steps{
+                discordSend description: "Path: ${BUCKETNAME}/${DESTINATION_FOLDER}", footer: '${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}', image: '', link: '', result: '', scmWebUrl: '', showChangeset: true, thumbnail: '', title: "${env.JOB_NAME} -> Build FINISHED", webhookURL: "${DISCORD_HOOK}"
+            }
         }
     }
 }
