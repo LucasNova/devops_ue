@@ -85,7 +85,7 @@ pipeline {
         }
         stage('Send Notifiers'){
             steps{
-                discordSend description: "Path: ${BUCKETNAME}/${DESTINATION_FOLDER}", footer: '${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}', image: '', link: '', result: '', scmWebUrl: '', showChangeset: true, thumbnail: '', title: "${env.JOB_NAME} -> Build FINISHED", webhookURL: "${DISCORD_HOOK}"
+                discordSend description: "Path: ${DESTINATION_FOLDER}/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip", footer: "${currentBuild.durationString.replace(' and counting', '')}", image: '', link: '', result: '', scmWebUrl: '', showChangeset: true, thumbnail: '', title: "${env.JOB_NAME}[${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}] -> Build FINISHED", webhookURL: "${DISCORD_HOOK}"
             }
         }
     }
