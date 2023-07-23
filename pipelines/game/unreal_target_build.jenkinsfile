@@ -116,7 +116,7 @@ pipeline {
         stage('Send Notifiers'){
             when {
                 expression { 
-                   return params.SILENT_MODE == true
+                   return params.SILENT_MODE == false
                 }
             }
             steps{
