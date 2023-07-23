@@ -27,19 +27,45 @@ pipeline {
         VERSIONBATCHER = "$BUILD_DIR\\Script\VersionBatcher.bat"
         BUCKETNAME = ""
         DESTINATION_FOLDER = ""
-        SILENT_MODE = ""
         DISCORD_HOOK = "url"
     }*/
 
     stages {
+        stage('Setup parameters') {
+            steps {
+                script { 
+                    properties([
+                        parameters([
+                            choice(
+                                choices: ['Win64+Android', 'Android', 'Win64' ], 
+                                name: 'PLATFORM',
+                            ),
+                            choice(
+                                choices: ['Shipping', 'Development', 'DebugGame' ], 
+                                name: 'CONFIG',
+                            ),
+                            booleanParam(
+                                defaultValue: false, 
+                                description: 'Ignore sending any build statuses to Discrod, Slack, etc...', 
+                                name: 'SILENT_MODE'
+                            ),
+                            string(
+                                defaultValue: 'code', 
+                                name: 'GIT_BRANCH_GAME', 
+                                trim: true
+                            )
+                        ])
+                    ])
+                }
+            }
         stage('Git clone') {
             steps {
                 checkout([$class: 'GitSCM',
-                    branches: [[name: "$GIT_BRANCH_GAME"]],
+                    branches: [[name: "${params.GIT_BRANCH_GAME}"]],
                     extensions: [
                         [$class: 'CleanBeforeCheckout'],
                         [$class: 'GitLFSPull'],
-                        [$class: 'CloneOption', timeout: "$GIT_CLONE_TIMEOUT_MIN"],
+                        [$class: 'CloneOption', timeout: "$GIT_CLONE_TIMEOUT_MIN", shallow: true],
                         [$class: 'CheckoutOption', timeout: "$GIT_CLONE_TIMEOUT_MIN"]
                     ],
                     userRemoteConfigs: [[credentialsId: "$GIT_CREDENTIALS_GAME",
@@ -57,10 +83,10 @@ pipeline {
                 bat '''
                     "%UAT_PATH%" BuildCookRun ^
                     -project="%PROJECT_PATH%" ^
-                    -platform="%PLATFORM%" ^
+                    -platform="${params.PLATFORM}" ^
                     -cookflavor=ASTC ^
-                    -clientconfig="%CONFIG%" ^
-                    -serverconfig="%CONFIG%" ^
+                    -clientconfig="${params.CONFIG}" ^
+                    -serverconfig="${params.CONFIG}" ^
                     -archivedirectory="%ARCHIVE_PATH%" ^
                     %BUILD_FLAGS% -noturnkeyvariables
                 '''
@@ -79,9 +105,11 @@ pipeline {
         }
         stage('Send Notifiers'){
             steps{
-                if (SILENT_MODE != ""){
-                    discordSend description: "Path: ${DESTINATION_FOLDER}/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip", footer: "Duration: ${currentBuild.durationString.replace(' and counting', '')}", image: '', link: '', result: 'SUCCESS', scmWebUrl: '', showChangeset: false, thumbnail: '', title: "${env.JOB_NAME}[${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}] -> Build FINISHED", webhookURL: "${DISCORD_HOOK}"
+                if (params.SILENT_MODE){
+                    return
                 }
+
+                discordSend description: "Path: ${DESTINATION_FOLDER}/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip", footer: "Duration: ${currentBuild.durationString.replace(' and counting', '')}", image: '', link: '', result: 'SUCCESS', scmWebUrl: '', showChangeset: false, thumbnail: '', title: "${env.JOB_NAME}[${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}] -> Build FINISHED", webhookURL: "${DISCORD_HOOK}"                
             }
         }
     }
