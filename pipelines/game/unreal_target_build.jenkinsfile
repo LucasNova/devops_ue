@@ -63,7 +63,6 @@ pipeline {
                 checkout([$class: 'GitSCM',
                     branches: [[name: "${params.GIT_BRANCH_GAME}"]],
                     extensions: [
-                        [$class: 'CleanBeforeCheckout'],
                         [$class: 'GitLFSPull'],
                         [$class: 'CloneOption', timeout: "$GIT_CLONE_TIMEOUT_MIN", shallow: true],
                         [$class: 'CheckoutOption', timeout: "$GIT_CLONE_TIMEOUT_MIN"]
