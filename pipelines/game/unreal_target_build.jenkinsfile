@@ -34,6 +34,7 @@ pipeline {
         VERSIONBATCHER = "$BUILD_DIR\\Script\VersionBatcher.bat"
         BUCKETNAME = ""
         DESTINATION_FOLDER = ""
+        SILENT_MODE = ""
         DISCORD_HOOK = "url"
     }*/
 
@@ -85,7 +86,9 @@ pipeline {
         }
         stage('Send Notifiers'){
             steps{
-                discordSend description: "Path: ${DESTINATION_FOLDER}/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip", footer: "Duration: ${currentBuild.durationString.replace(' and counting', '')}", image: '', link: '', result: 'SUCCESS', scmWebUrl: '', showChangeset: false, thumbnail: '', title: "${env.JOB_NAME}[${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}] -> Build FINISHED", webhookURL: "${DISCORD_HOOK}"
+                if (SILENT_MODE != ""){
+                    discordSend description: "Path: ${DESTINATION_FOLDER}/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip", footer: "Duration: ${currentBuild.durationString.replace(' and counting', '')}", image: '', link: '', result: 'SUCCESS', scmWebUrl: '', showChangeset: false, thumbnail: '', title: "${env.JOB_NAME}[${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}] -> Build FINISHED", webhookURL: "${DISCORD_HOOK}"
+                }
             }
         }
     }
