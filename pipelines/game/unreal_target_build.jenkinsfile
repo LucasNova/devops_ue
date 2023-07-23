@@ -90,8 +90,8 @@ pipeline {
                     -project="%PROJECT_PATH%" ^
                     -platform="%PLATFORM%" ^
                     -cookflavor=ASTC ^
-                    -clientconfig="%params.CONFIG%" ^
-                    -serverconfig="%params.CONFIG%" ^
+                    -clientconfig="%CONFIG%" ^
+                    -serverconfig="%CONFIG%" ^
                     -archivedirectory="%ARCHIVE_PATH%" ^
                     %BUILD_FLAGS% -noturnkeyvariables
                 '''
