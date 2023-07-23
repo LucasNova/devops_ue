@@ -88,10 +88,10 @@ pipeline {
                 bat '''
                     "%UAT_PATH%" BuildCookRun ^
                     -project="%PROJECT_PATH%" ^
-                    -platform="${params.PLATFORM}" ^
+                    -platform="%PLATFORM%" ^
                     -cookflavor=ASTC ^
-                    -clientconfig="${params.CONFIG}" ^
-                    -serverconfig="${params.CONFIG}" ^
+                    -clientconfig="%params.CONFIG%" ^
+                    -serverconfig="%params.CONFIG%" ^
                     -archivedirectory="%ARCHIVE_PATH%" ^
                     %BUILD_FLAGS% -noturnkeyvariables
                 '''
