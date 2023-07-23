@@ -104,18 +104,22 @@ pipeline {
             }
         }
         stage('Upload to AWS') {
-            steps {
-                if (params.Upload_TO_AWS){
-                    s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: '${BUCKETNAME}/${DESTINATION_FOLDER}', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: false, noUploadOnFailure: true, selectedRegion: 'eu-north-1', showDirectlyInBrowser: false, sourceFile: "Archive/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'vrsim', userMetadata: []
+            when {
+                expression { 
+                   return params.Upload_TO_AWS == true
                 }
+            }
+            steps {
+                s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: '${BUCKETNAME}/${DESTINATION_FOLDER}', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: false, noUploadOnFailure: true, selectedRegion: 'eu-north-1', showDirectlyInBrowser: false, sourceFile: "Archive/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'vrsim', userMetadata: []
             }
         }
         stage('Send Notifiers'){
-            steps{
-                if (params.SILENT_MODE){
-                    return
+            when {
+                expression { 
+                   return params.SILENT_MODE == true
                 }
-
+            }
+            steps{
                 discordSend description: "Path: ${DESTINATION_FOLDER}/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip", footer: "Duration: ${currentBuild.durationString.replace(' and counting', '')}", image: '', link: '', result: 'SUCCESS', scmWebUrl: '', showChangeset: false, thumbnail: '', title: "${env.JOB_NAME}[${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}] -> Build FINISHED", webhookURL: "${DISCORD_HOOK}"                
             }
         }
