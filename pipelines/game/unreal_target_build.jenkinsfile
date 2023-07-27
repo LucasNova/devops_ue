@@ -67,7 +67,7 @@ pipeline {
         stage('Clear Build Folder'){
             steps{
                 bat '''
-                    rmdir /S /Q %BUILD_DIR%\\Build\\*
+                    rmdir /S /Q Build
                 '''
             }
         }
