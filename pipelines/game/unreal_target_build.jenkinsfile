@@ -106,6 +106,9 @@ pipeline {
         }
         stage('Archive artifacts') {
             steps {
+                bat '''
+                    rmdir /S /Q Build\\Android
+                '''
                 zip zipFile: "Archive/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip", archive: false, dir: 'Build'
                 archiveArtifacts artifacts: "Archive/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip", fingerprint: true, onlyIfSuccessful: true
             }
