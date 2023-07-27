@@ -64,6 +64,13 @@ pipeline {
                 }
             }
         }
+        stage('Clear Build Folder'){
+            steps{
+                bat '''
+                    rmdir /S /Q %BUILD_DIR%\\Build\\*
+                '''
+            }
+        }
         stage('Git clone') {
             steps {
                 checkout([$class: 'GitSCM',
