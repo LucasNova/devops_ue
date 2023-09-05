@@ -1,3 +1,5 @@
+def WITH_DISTRIBUTION = ""
+
 pipeline {
     agent {
         node {
@@ -104,7 +106,10 @@ pipeline {
         stage('Build'){
             steps {
                 script {
-                    env.WITH_DISTRIBUTION = params.DISTRIBUTION == true ? '-distribution ' : ''
+                    if (params.DISTRIBUTION == true){
+                        WITH_DISTRIBUTION = "-distribution "
+                    }
+                    
                     bat '''
                         "%UAT_PATH%" BuildCookRun ^
                         -project="%PROJECT_PATH%" ^
