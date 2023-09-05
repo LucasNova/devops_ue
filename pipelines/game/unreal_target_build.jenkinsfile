@@ -191,7 +191,7 @@ pipeline {
                         "%OVR_UTIL%" upload-quest-build ^
                         --app_id %OCULUS_APP_ID% ^
                         --app_secret %OCULUS_APP_SECRET% ^
-                        --token %OCULUS_USER_TOKEN% ^
+                        --token "%OCULUS_USER_TOKEN%" ^
                         --apk Build/%APP_NAME%-Android-Shipping-arm64.apk ^
                         --obb Build/main.%VERSION_MAJOR%%VERSION_MINOR%%BUILD_NUMBER%.%APP_PREFIX%.%APP_NAME%.obb ^
                         --channel %OCULUS_CHANNEL%
