@@ -172,7 +172,7 @@ pipeline {
         stage('Archive artifacts') {
             when {
                 expression { 
-                    return (params.Upload_To_Oculus == true || params.NEED_ARCHIVE)
+                    return (params.Upload_To_Oculus == true || params.NEED_ARCHIVE == true )
                 }
             }
             steps {
