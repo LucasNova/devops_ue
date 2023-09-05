@@ -1,4 +1,5 @@
 def WITH_DISTRIBUTION = ""
+def NOTIFIER_TEXT = ""
 
 pipeline {
     agent {
@@ -57,6 +58,11 @@ pipeline {
                     defaultValue: false, 
                     description: 'Ignore sending any build statuses to Discrod, Slack, etc...', 
                     name: 'SILENT_MODE'
+                )
+                booleanParam(
+                    defaultValue: true,
+                    description: 'Make Archive and Artifact, will be auto enabled, when Upload to AWS', 
+                    name: 'NEED_ARCHIVE'
                 )
                 booleanParam(
                     defaultValue: true, 
@@ -164,6 +170,11 @@ pipeline {
             }
         }
         stage('Archive artifacts') {
+            when {
+                expression { 
+                    return (params.Upload_To_Oculus == true || params.NEED_ARCHIVE)
+                }
+            }
             steps {
                 zip zipFile: "Archive/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip", archive: false, dir: 'Build'
                 archiveArtifacts artifacts: "Archive/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip", fingerprint: true, onlyIfSuccessful: true
@@ -204,7 +215,20 @@ pipeline {
                 }
             }
             steps{
-                discordSend description: "Path: ${DESTINATION_FOLDER}/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip", footer: "Duration: ${currentBuild.durationString.replace(' and counting', '')}", image: '', link: '', result: 'SUCCESS', scmWebUrl: '', showChangeset: false, thumbnail: '', title: "${env.JOB_NAME}[${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}] -> Build FINISHED", webhookURL: "${DISCORD_HOOK}"                
+                script {
+                    env.NOTIFIER_TEXT = "";
+                    if (params.Upload_TO_AWS == true){
+                        env.NOTIFIER_TEXT += "Path: ${DESTINATION_FOLDER}/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip"
+                        if (params.Upload_To_OCULUS == true){
+                            env.NOTIFIER_TEXT += "\n"
+                        }
+                    }
+                    if (params.Upload_To_OCULUS == true){
+                        env.NOTIFIER_TEXT += "Oculus uploaded to channel: ${OCULUS_CHANNEL}"
+                    }
+
+                    discordSend description: "${NOTIFIER_TEXT}", footer: "Duration: ${currentBuild.durationString.replace(' and counting', '')}", image: '', link: '', result: 'SUCCESS', scmWebUrl: '', showChangeset: false, thumbnail: '', title: "${env.JOB_NAME}[${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}] -> Build FINISHED", webhookURL: "${DISCORD_HOOK}"
+                }
             }
         }
     }
