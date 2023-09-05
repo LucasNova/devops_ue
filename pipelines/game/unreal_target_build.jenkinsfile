@@ -17,6 +17,13 @@ pipeline {
         UAT_PATH = 'C:\\Epic Games\\UE Binary\\UE_5.0\\Engine\\Build\\BatchFiles\\RunUAT.bat'
         ANDROID_INSTALL_PATH = 'D:\\JenkinsJobs\\UnrealOculus\\Engine\\Extras\\Android\\SetupAndroid.bat'
         PROJECT_PATH = "$BUILD_DIR\\TPS.uproject"
+        OVR_UTIL = 'D:\\Lib\\OVRUtil\\Util.exe'
+        APP_NAME = AppName
+        APP_PREFIX = com.Company
+        OCULUS_APP_ID = 1234123412
+        OCULUS_APP_SECRET = dce3cd
+        OCULUS_USER_TOKEN = 8338
+        OCULUS_CHANNEL = ALPHA
         // ARCHIVE_PATH = "c:\\JenkinsJobs\\Artifacts\\$JOB_NAME\\$BUILD_NUMBER"
         ARCHIVE_PATH = "$BUILD_DIR\\Build"
         BUILD_FLAGS = '-build -cook -package -stage -archive -pak -allmaps' // -server -client -noclient
@@ -41,6 +48,11 @@ pipeline {
                     choices: ['Shipping', 'Development', 'DebugGame' ], 
                     name: 'CONFIG'
                 )
+                string(
+                    defaultValue: 'code', 
+                    name: 'GIT_BRANCH_GAME', 
+                    trim: true
+                )
                 booleanParam(
                     defaultValue: false, 
                     description: 'Ignore sending any build statuses to Discrod, Slack, etc...', 
@@ -51,10 +63,10 @@ pipeline {
                     description: 'Upload build to AWS S3?', 
                     name: 'Upload_TO_AWS'
                 )
-                string(
-                    defaultValue: 'code', 
-                    name: 'GIT_BRANCH_GAME', 
-                    trim: true
+                booleanParam(
+                    defaultValue: true, 
+                    description: 'Upload build to Oculus', 
+                    name: 'Upload_To_Oculus'
                 )
                 booleanParam(
                     defaultValue: true,
@@ -155,6 +167,24 @@ pipeline {
             steps {
                 zip zipFile: "Archive/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip", archive: false, dir: 'Build'
                 archiveArtifacts artifacts: "Archive/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip", fingerprint: true, onlyIfSuccessful: true
+            }
+        }
+        stage('Upload to Oculus') {
+            when {
+                expression { 
+                    return params.Upload_To_Oculus == true
+                }
+            }
+            steps {
+                bat '''
+                        "%Upload_To_Oculus%" upload-quest-build ^
+                        --app_id %OCULUS_APP_ID% ^
+                        --app_secret %OCULUS_APP_SECRET% ^
+                        --token %OCULUS_USER_TOKEN% ^
+                        --apk Build/%APP_NAME%-Android-Shipping-arm64.apk ^
+                        --obb Build/main.%VERSION_MAJOR%%VERSION_MINOR%%BUILD_NUMBER%.%APP_PREFIX%.%APP_NAME%.obb ^
+                        --channel %OCULUS_CHANNEL%
+                '''
             }
         }
         stage('Upload to AWS') {
