@@ -104,6 +104,18 @@ pipeline {
                 '''
             }
         }
+        stage('Clean'){
+            when {
+                expression { 
+                   return (params.PLATFORM == 'Android' || params.PLATFORM == 'Win64+Android')
+                }
+            }
+            steps {
+                bat '''
+                    rmdir /S /Q Build\\Android
+                '''
+            }
+        }
         stage('Archive artifacts') {
             steps {
                 zip zipFile: "Archive/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip", archive: false, dir: 'Build'
@@ -113,7 +125,7 @@ pipeline {
         stage('Upload to AWS') {
             when {
                 expression { 
-                   return params.Upload_TO_AWS == true
+                    return params.Upload_TO_AWS == true
                 }
             }
             steps {
