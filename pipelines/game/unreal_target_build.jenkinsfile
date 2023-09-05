@@ -107,6 +107,7 @@ pipeline {
             steps {
                 script {
                     if (params.DISTRIBUTION == true){
+                        echo "WITH DISTRIBUTION MUST BE TRUE"
                         WITH_DISTRIBUTION = "-distribution "
                     }
                     
