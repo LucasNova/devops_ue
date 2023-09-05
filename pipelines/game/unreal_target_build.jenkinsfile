@@ -32,36 +32,43 @@ pipeline {
         DISCORD_HOOK = "url"
     }*/
 
+    parameters([
+                choice(
+                    choices: ['Win64+Android', 'Android', 'Win64' ], 
+                    name: 'PLATFORM',
+                ),
+                choice(
+                    choices: ['Shipping', 'Development', 'DebugGame' ], 
+                    name: 'CONFIG',
+                ),
+                booleanParam(
+                    defaultValue: false, 
+                    description: 'Ignore sending any build statuses to Discrod, Slack, etc...', 
+                    name: 'SILENT_MODE'
+                ),
+                booleanParam(
+                    defaultValue: true, 
+                    description: 'Upload build to AWS S3?', 
+                    name: 'Upload_TO_AWS'
+                ),
+                string(
+                    defaultValue: 'code', 
+                    name: 'GIT_BRANCH_GAME', 
+                    trim: true
+                ),
+                booleanParam(
+                    defaultValue: true,
+                    description: 'Sign app by keystore?',
+                    name: 'DISTRIBUTION'
+               )
+            ])
+
     stages {
         stage('Setup parameters') {
             steps {
                 script { 
                     properties([
-                        parameters([
-                            choice(
-                                choices: ['Win64+Android', 'Android', 'Win64' ], 
-                                name: 'PLATFORM',
-                            ),
-                            choice(
-                                choices: ['Shipping', 'Development', 'DebugGame' ], 
-                                name: 'CONFIG',
-                            ),
-                            booleanParam(
-                                defaultValue: false, 
-                                description: 'Ignore sending any build statuses to Discrod, Slack, etc...', 
-                                name: 'SILENT_MODE'
-                            ),
-                            booleanParam(
-                                defaultValue: true, 
-                                description: 'Upload build to AWS S3?', 
-                                name: 'Upload_TO_AWS'
-                            ),
-                            string(
-                                defaultValue: 'code', 
-                                name: 'GIT_BRANCH_GAME', 
-                                trim: true
-                            )
-                        ])
+                        
                     ])
                 }
             }
@@ -101,15 +108,6 @@ pipeline {
         stage('Build'){
             steps {
                 script {
-                    properties([
-                     parameters([
-                       booleanParam(
-                         defaultValue: true,
-                         description: 'Sign app by keystore?',
-                         name: 'DISTRIBUTION'
-                       )
-                     ])
-                   ])
                     if (params.DISTRIBUTION == true){
                         echo "DISTRIBUTION is true"
                         env.WITH_DISTRIBUTION = "-distribution "
