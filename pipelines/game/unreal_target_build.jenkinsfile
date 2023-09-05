@@ -89,17 +89,21 @@ pipeline {
                     url: "$GIT_URL_GAME"]]])
             }
         }
-        stage('Build') {
+        stage('Prepare') {
             steps {
-                environment {
-                    WITH_DISTRIBUTION = params.DISTRIBUTION == true ? '-distribution ' : ''
-                }
                 bat '''
                     "%VERSIONBATCHER%" -version="%VERSION_MAJOR%.%VERSION_MINOR%.%BUILD_NUMBER%"
                 '''
                 bat '''
                     "%ANDROID_INSTALL_PATH%"
                 '''
+            }
+        }
+        stage('Build'){
+            steps {
+                script {
+                    env.WITH_DISTRIBUTION = params.DISTRIBUTION == true ? '-distribution ' : ''
+                }
                 bat '''
                     "%UAT_PATH%" BuildCookRun ^
                     -project="%PROJECT_PATH%" ^
