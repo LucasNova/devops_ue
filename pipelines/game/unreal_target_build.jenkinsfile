@@ -119,7 +119,7 @@ pipeline {
                 }
             }
         }
-        stage('Clean and Move'){
+        stage('Clean and Move(Android)'){
             when {
                 expression { 
                    return (params.PLATFORM == 'Android' || params.PLATFORM == 'Win64+Android')
@@ -135,6 +135,19 @@ pipeline {
                 bat '''
                     rmdir /S /Q Build\\Android
                     rmdir /S /Q Build\\Android_ASTC
+                '''
+            }
+        }
+        stage('Clean and Move(Windows)'){
+            when {
+                expression { 
+                   return (params.PLATFORM == 'Win64' || params.PLATFORM == 'Win64+Android')
+                }
+            }
+            steps {
+                bat '''
+                    cd Build
+                    ren WindowsNoEditor Spectator
                 '''
             }
         }
