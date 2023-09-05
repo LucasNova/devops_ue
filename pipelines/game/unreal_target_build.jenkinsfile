@@ -54,6 +54,11 @@ pipeline {
                                 description: 'Upload build to AWS S3?', 
                                 name: 'Upload_TO_AWS'
                             ),
+                            booleanParam(
+                                defaultValue: true, 
+                                description: 'Sign app by keystore?', 
+                                name: 'Distribution'
+                            ),
                             string(
                                 defaultValue: 'code', 
                                 name: 'GIT_BRANCH_GAME', 
@@ -86,6 +91,9 @@ pipeline {
         }
         stage('Build') {
             steps {
+                environment {
+                    WITH_DISTRIBUTION = params.DISTRIBUTION == true ? '-distribution ' : ''
+                }
                 bat '''
                     "%VERSIONBATCHER%" -version="%VERSION_MAJOR%.%VERSION_MINOR%.%BUILD_NUMBER%"
                 '''
@@ -100,7 +108,7 @@ pipeline {
                     -clientconfig="%CONFIG%" ^
                     -serverconfig="%CONFIG%" ^
                     -archivedirectory="%ARCHIVE_PATH%" ^
-                    %BUILD_FLAGS% -noturnkeyvariables
+                    %BUILD_FLAGS%%WITH_DISTRIBUTION% -noturnkeyvariables
                 '''
             }
         }
