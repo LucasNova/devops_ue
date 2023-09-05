@@ -32,36 +32,36 @@ pipeline {
         DISCORD_HOOK = "url"
     }*/
 
-    parameters([
+    parameters {
                 choice(
                     choices: ['Win64+Android', 'Android', 'Win64' ], 
-                    name: 'PLATFORM',
-                ),
+                    name: 'PLATFORM'
+                )
                 choice(
                     choices: ['Shipping', 'Development', 'DebugGame' ], 
-                    name: 'CONFIG',
-                ),
+                    name: 'CONFIG'
+                )
                 booleanParam(
                     defaultValue: false, 
                     description: 'Ignore sending any build statuses to Discrod, Slack, etc...', 
                     name: 'SILENT_MODE'
-                ),
+                )
                 booleanParam(
                     defaultValue: true, 
                     description: 'Upload build to AWS S3?', 
                     name: 'Upload_TO_AWS'
-                ),
+                )
                 string(
                     defaultValue: 'code', 
                     name: 'GIT_BRANCH_GAME', 
                     trim: true
-                ),
+                )
                 booleanParam(
                     defaultValue: true,
                     description: 'Sign app by keystore?',
                     name: 'DISTRIBUTION'
                )
-            ])
+            }
 
     stages {
         stage('Clear Build Folder'){
