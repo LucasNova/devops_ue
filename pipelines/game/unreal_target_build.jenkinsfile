@@ -56,11 +56,6 @@ pipeline {
                                 description: 'Upload build to AWS S3?', 
                                 name: 'Upload_TO_AWS'
                             ),
-                            booleanParam(
-                                defaultValue: true, 
-                                description: 'Sign app by keystore?', 
-                                name: 'Distribution'
-                            ),
                             string(
                                 defaultValue: 'code', 
                                 name: 'GIT_BRANCH_GAME', 
@@ -106,7 +101,16 @@ pipeline {
         stage('Build'){
             steps {
                 script {
-                    if (DISTRIBUTION == true){
+                    properties([
+                     parameters([
+                       booleanParam(
+                         defaultValue: true,
+                         description: 'Distribution',
+                         name: 'DISTRIBUTION'
+                       )
+                     ])
+                   ])
+                    if (params.DISTRIBUTION == true){
                         echo "DISTRIBUTION is true"
                         WITH_DISTRIBUTION = "-distribution "
                     }else{
