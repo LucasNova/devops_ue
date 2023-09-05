@@ -64,15 +64,6 @@ pipeline {
             ])
 
     stages {
-        stage('Setup parameters') {
-            steps {
-                script { 
-                    properties([
-                        
-                    ])
-                }
-            }
-        }
         stage('Clear Build Folder'){
             steps{
                 catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
