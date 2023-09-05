@@ -225,7 +225,7 @@ pipeline {
                         env.NOTIFIER_TEXT += "Oculus uploaded to channel: ${OCULUS_CHANNEL}"
                     }
 
-                    discordSend description: "${NOTIFIER_TEXT}", footer: "Duration: ${currentBuild.durationString.replace(' and counting', '')}", image: '', link: '', result: 'SUCCESS', scmWebUrl: '', showChangeset: false, thumbnail: '', title: "${env.JOB_NAME}[${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}] -> Build FINISHED", webhookURL: "${DISCORD_HOOK}"
+                    discordSend description: "${env.NOTIFIER_TEXT}", footer: "Duration: ${currentBuild.durationString.replace(' and counting', '')}", image: '', link: '', result: 'SUCCESS', scmWebUrl: '', showChangeset: false, thumbnail: '', title: "${env.JOB_NAME}[${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}] -> Build FINISHED", webhookURL: "${DISCORD_HOOK}"
                 }
             }
         }
