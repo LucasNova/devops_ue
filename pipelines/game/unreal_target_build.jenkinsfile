@@ -23,7 +23,6 @@ pipeline {
         APP_PREFIX = com.Company
         OCULUS_APP_ID = 1234123412
         OCULUS_APP_SECRET = dce3cd
-        OCULUS_USER_TOKEN = 8338
         OCULUS_CHANNEL = ALPHA
         // ARCHIVE_PATH = "c:\\JenkinsJobs\\Artifacts\\$JOB_NAME\\$BUILD_NUMBER"
         ARCHIVE_PATH = "$BUILD_DIR\\Build"
@@ -191,7 +190,6 @@ pipeline {
                         "%OVR_UTIL%" upload-quest-build ^
                         --app_id %OCULUS_APP_ID% ^
                         --app_secret %OCULUS_APP_SECRET% ^
-                        --token "%OCULUS_USER_TOKEN%" ^
                         --apk Build/%APP_NAME%-Android-Shipping-arm64.apk ^
                         --obb Build/main.%VERSION_MAJOR%%VERSION_MINOR%%BUILD_NUMBER%.%APP_PREFIX%.%APP_NAME%.obb ^
                         --channel %OCULUS_CHANNEL%
