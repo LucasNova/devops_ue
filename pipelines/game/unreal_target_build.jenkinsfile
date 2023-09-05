@@ -106,11 +106,11 @@ pipeline {
         stage('Build'){
             steps {
                 script {
-                    if (params.DISTRIBUTION == true){
-                        echo "params.DISTRIBUTION is true"
+                    if (DISTRIBUTION == true){
+                        echo "DISTRIBUTION is true"
                         WITH_DISTRIBUTION = "-distribution "
                     }else{
-                        echo "params.DISTRIBUTION is false"
+                        echo "DISTRIBUTION is false"
                     }
                     
                     bat '''
