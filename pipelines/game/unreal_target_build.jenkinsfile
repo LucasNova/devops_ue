@@ -71,7 +71,7 @@ pipeline {
         }
         stage('Clear Build Folder'){
             steps{
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                     bat '''
                         rmdir /S /Q Build
                     '''
