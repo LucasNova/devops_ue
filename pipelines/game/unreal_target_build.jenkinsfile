@@ -177,7 +177,7 @@ pipeline {
             }
             steps {
                 bat '''
-                        "%Upload_To_Oculus%" upload-quest-build ^
+                        "%OVR_UTIL%" upload-quest-build ^
                         --app_id %OCULUS_APP_ID% ^
                         --app_secret %OCULUS_APP_SECRET% ^
                         --token %OCULUS_USER_TOKEN% ^
