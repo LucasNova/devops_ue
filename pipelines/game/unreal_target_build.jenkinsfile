@@ -171,7 +171,7 @@ pipeline {
         stage('Archive artifacts') {
             when {
                 expression { 
-                    return (params.Upload_To_Oculus == true || params.NEED_ARCHIVE == true )
+                    return (params.Upload_To_Oculus || params.NEED_ARCHIVE )
                 }
             }
             steps {
@@ -217,11 +217,11 @@ pipeline {
                     env.NOTIFIER_TEXT = "";
                     if (params.Upload_TO_AWS == true){
                         env.NOTIFIER_TEXT += "Path: ${DESTINATION_FOLDER}/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}.zip"
-                        if (params.Upload_To_OCULUS == true){
+                        if (params.Upload_To_Oculus == true){
                             env.NOTIFIER_TEXT += "\n"
                         }
                     }
-                    if (params.Upload_To_OCULUS == true){
+                    if (params.Upload_To_Oculus == true){
                         env.NOTIFIER_TEXT += "Oculus uploaded to channel: ${OCULUS_CHANNEL}"
                     }
 
