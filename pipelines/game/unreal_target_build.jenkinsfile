@@ -104,19 +104,18 @@ pipeline {
         stage('Build'){
             steps {
                 script {
-                    params.WITH_DISTRIBUTION = params.DISTRIBUTION == true ? '-distribution ' : ''
+                    env.WITH_DISTRIBUTION = params.DISTRIBUTION == true ? '-distribution ' : ''
+                    bat '''
+                        "%UAT_PATH%" BuildCookRun ^
+                        -project="%PROJECT_PATH%" ^
+                        -platform="%PLATFORM%" ^
+                        -cookflavor=ASTC ^
+                        -clientconfig="%CONFIG%" ^
+                        -serverconfig="%CONFIG%" ^
+                        -archivedirectory="%ARCHIVE_PATH%" ^
+                        %BUILD_FLAGS%%WITH_DISTRIBUTION% -noturnkeyvariables
+                    '''
                 }
-
-                bat '''
-                    "%UAT_PATH%" BuildCookRun ^
-                    -project="%PROJECT_PATH%" ^
-                    -platform="%PLATFORM%" ^
-                    -cookflavor=ASTC ^
-                    -clientconfig="%CONFIG%" ^
-                    -serverconfig="%CONFIG%" ^
-                    -archivedirectory="%ARCHIVE_PATH%" ^
-                    %BUILD_FLAGS%%WITH_DISTRIBUTION% -noturnkeyvariables
-                '''
             }
         }
         stage('Clean'){
