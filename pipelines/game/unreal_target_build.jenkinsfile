@@ -71,9 +71,11 @@ pipeline {
         }
         stage('Clear Build Folder'){
             steps{
-                bat '''
-                    rmdir /S /Q Build
-                '''
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    bat '''
+                        rmdir /S /Q Build
+                    '''
+                }
             }
         }
         stage('Git clone') {
