@@ -112,7 +112,7 @@ pipeline {
                    ])
                     if (params.DISTRIBUTION == true){
                         echo "DISTRIBUTION is true"
-                        WITH_DISTRIBUTION = "-distribution "
+                        env.WITH_DISTRIBUTION = "-distribution "
                     }else{
                         echo "DISTRIBUTION is false"
                     }
