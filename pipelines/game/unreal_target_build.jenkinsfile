@@ -1,10 +1,3 @@
-def ColorFromBuildResult(result){
-    if("${result}" == 'SUCCESS') return '#18A558'
-    if("${result}" == 'ABORTED') return '#6e6e6e'
-    if("${result}" == 'UNSTABLE') return '#fcba03'
-    return '#FF0000'
-}
-
 pipeline {
     agent {
         node {
@@ -14,39 +7,24 @@ pipeline {
     }
 
     /* environment {
-        BUILD_DIR = 'c:\\JenkinsJobs\\TPS-target-pipeline'
-        GIT_URL_GAME = 'https://github.com/life-exe/UnrealTPSGame'
-        GIT_CREDENTIALS_GAME = 'life-exe-github'
-        GIT_BRANCH_GAME = 'master'
-        GIT_CLONE_TIMEOUT_MIN = 60
+        BUILD_DIR = 'c:\\Workspace\\ProjectDir'
         UAT_PATH = 'C:\\Epic Games\\UE Binary\\UE_5.0\\Engine\\Build\\BatchFiles\\RunUAT.bat'
         PROJECT_PATH = "$BUILD_DIR\\TPS.uproject"
         // ARCHIVE_PATH = "c:\\JenkinsJobs\\Artifacts\\$JOB_NAME\\$BUILD_NUMBER"
         ARCHIVE_PATH = "$BUILD_DIR\\Build"
         BUILD_FLAGS = '-build -cook -package -stage -archive -pak -allmaps' // -server -client -noclient
         ZIP_DIR = "Build\\**\\*.*"
-        SLACK_CHANNEL = 'tps-game-builds'
         PLATFORM = 'Win64' // ['Android', 'Linux'..]
         CONFIG = 'Development' // ['Development', 'Shipping', 'DebugGame']
+        DEPOPATH = //depot/path/to/your/code/...
     }*/
 
     stages {
-        stage('Git clone') {
+        stage('P4 sync') {
             steps {
-                slackSend channel: "$SLACK_CHANNEL",
-                    color: "$currentBuild.previousBuild" == 'null' ? '#18A558' :
-                    ColorFromBuildResult("$currentBuild.previousBuild.result"),
-                    message:"Build started: ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
-
-                checkout([$class: 'GitSCM',
-                    branches: [[name: "$GIT_BRANCH_GAME"]],
-                    extensions: [
-                        [$class: 'CleanBeforeCheckout'],
-                        [$class: 'CloneOption', timeout: "$GIT_CLONE_TIMEOUT_MIN"],
-                        [$class: 'CheckoutOption', timeout: "$GIT_CLONE_TIMEOUT_MIN"]
-                    ],
-                    userRemoteConfigs: [[credentialsId: "$GIT_CREDENTIALS_GAME",
-                    url: "$GIT_URL_GAME"]]])
+                bat '''
+                    p4 sync %DEPOPATH%
+                '''
             }
         }
         stage('Build') {
@@ -66,14 +44,6 @@ pipeline {
             steps {
                 archiveArtifacts artifacts: "$ZIP_DIR"
             }
-        }
-    }
-
-    post {
-        always {
-            slackSend channel: "$SLACK_CHANNEL",
-                color: ColorFromBuildResult("$currentBuild.currentResult"),
-                message:"Build $currentBuild.currentResult: ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
         }
     }
 }
