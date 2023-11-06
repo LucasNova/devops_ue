@@ -17,14 +17,14 @@ pipeline {
         ZIP_DIR = "Build\\**\\*.*"
         PLATFORM = 'Win64' // ['Android', 'Linux'..]
         CONFIG = 'Development' // ['Development', 'Shipping', 'DebugGame']
-        DEPOPATH = //depot/path/to/your/code/...
+        P4_DEPOT = //Depo/Mainline/...#head
     }*/
 
     stages {
         stage('P4 sync') {
             steps {
                 bat '''
-                    "%P4_PATH%" sync
+                    "%P4_PATH%" sync %P4_DEPOT%
                 '''
             }
         }
