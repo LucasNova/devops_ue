@@ -8,6 +8,7 @@ pipeline {
 
     /* environment {
         BUILD_DIR = 'c:\\Workspace\\ProjectDir'
+        P4_PATH = 'C:\\Program Files\\Perforce'
         UAT_PATH = 'C:\\Epic Games\\UE Binary\\UE_5.0\\Engine\\Build\\BatchFiles\\RunUAT.bat'
         PROJECT_PATH = "$BUILD_DIR\\TPS.uproject"
         // ARCHIVE_PATH = "c:\\JenkinsJobs\\Artifacts\\$JOB_NAME\\$BUILD_NUMBER"
@@ -23,7 +24,7 @@ pipeline {
         stage('P4 sync') {
             steps {
                 bat '''
-                    p4 sync
+                    "%P4_PATH%" sync
                 '''
             }
         }
