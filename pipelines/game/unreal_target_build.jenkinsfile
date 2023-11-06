@@ -21,13 +21,13 @@ pipeline {
     }*/
 
     stages {
-        stage('P4 sync') {
+        /* stage('P4 sync') {
             steps {
                 bat '''
                     "%P4_PATH%" sync %P4_DEPOT%
                 '''
             }
-        }
+        } */
         stage('Build') {
             steps {
                 bat '''
