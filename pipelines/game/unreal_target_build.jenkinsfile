@@ -23,7 +23,7 @@ pipeline {
         stage('P4 sync') {
             steps {
                 bat '''
-                    p4 sync %DEPOPATH%
+                    p4 sync
                 '''
             }
         }
