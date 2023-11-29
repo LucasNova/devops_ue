@@ -1,6 +1,7 @@
 def WITH_DISTRIBUTION = ""
 def NOTIFIER_TEXT = ""
 def WITH_CREATERELEASEPATCH = ""
+def GENERATEPATCHFROMVERSION = ""
 
 pipeline {
     agent {
@@ -79,6 +80,11 @@ pipeline {
                     description: 'Sign app by keystore?',
                     name: 'DISTRIBUTION'
                )
+                string(
+                    defaultValue: '1.2.', 
+                    name: 'GeneratePatchFromVersion', 
+                    trim: true
+                )
                 booleanParam(
                     defaultValue: false,
                     description: 'Create release version?',
@@ -123,14 +129,15 @@ pipeline {
             steps {
                 script {
                     if (params.DISTRIBUTION == true){
-                        echo "DISTRIBUTION is true"
                         env.WITH_DISTRIBUTION = " -distribution"
-                    }else{
-                        echo "DISTRIBUTION is false"
                     }
+
                     if (params.CreateReleaseVersion == true){
-                        env.WITH_CREATERELEASEPATCH = " -Createreleaseversion=%VERSION_MAJOR%.%VERSION_MINOR%.%BUILD_NUMBER%"
+                        env.WITH_CREATERELEASEPATCH = " -Createreleaseversion=${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}"
+                    } else if (params.GeneratePatchFromVersion != ''){
+                        env.GENERATEPATCHFROMVERSION = " -basedonreleaseversion=${GeneratePatchFromVersion}"
                     }
+
                     bat '''
                         "%UAT_PATH%" BuildCookRun ^
                         -project="%PROJECT_PATH%" ^
@@ -139,7 +146,7 @@ pipeline {
                         -clientconfig="%CONFIG%" ^
                         -serverconfig="%CONFIG%" ^
                         -archivedirectory="%ARCHIVE_PATH%" ^
-                        %BUILD_FLAGS%%WITH_DISTRIBUTION%%WITH_CREATERELEASEPATCH% -noturnkeyvariables
+                        %BUILD_FLAGS%%WITH_DISTRIBUTION%%WITH_CREATERELEASEPATCH%%GENERATEPATCHFROMVERSION% -noturnkeyvariables
                     '''
                 }
             }
