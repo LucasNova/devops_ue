@@ -137,7 +137,7 @@ pipeline {
                     def SubstructInt = params.SubstructPatchNumberBy as int
 
                     env.VERSION_PATCH = BuildInt - SubstructInt
-                    env.VERSIONSTRING = "${VERSION_MAJOR}.{VERSION_MINOR}.{VERSION_PATCH}"
+                    env.VERSIONSTRING = params.VERSION_MAJOR + "." + params.VERSION_MINOR + "." + env.VERSION_PATCH
 
                     bat '''
                     "%VERSIONBATCHER%" -version="%VERSIONSTRING%"
