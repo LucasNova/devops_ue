@@ -2,7 +2,7 @@ def WITH_DISTRIBUTION = ""
 def NOTIFIER_TEXT = ""
 def WITH_CREATERELEASEPATCH = ""
 def GENERATEPATCHFROMVERSION = ""
-
+def VERSION_PATCH = ""
 pipeline {
     agent {
         node {
@@ -26,7 +26,7 @@ pipeline {
         OCULUS_APP_ID = 1234123412
         OCULUS_APP_SECRET = dce3cd
         OCULUS_CHANNEL = ALPHA
-        // ARCHIVE_PATH = "c:\\JenkinsJobs\\Artifacts\\$JOB_NAME\\$BUILDS_ALL_TIME"
+        // ARCHIVE_PATH = "c:\\JenkinsJobs\\Artifacts\\$JOB_NAME\\$VERSION_PATCH"
         ARCHIVE_PATH = "$BUILD_DIR\\Build"
         BUILD_FLAGS = '-build -cook -package -stage -archive -pak -allmaps' // -server -client -noclient
         ZIP_DIR = "Build\\**\\*.*"
@@ -98,6 +98,11 @@ pipeline {
                     description: 'Create release version?',
                     name: 'CreateReleaseVersion'
                )
+                string(
+                    defaultValue: params.SubstructPatchNumberBy ? params.SubstructPatchNumberBy : 0, 
+                    name: 'SubstructPatchNumberBy', 
+                    trim: true
+                )
             }
 
     stages {
@@ -125,12 +130,20 @@ pipeline {
         }
         stage('Prepare') {
             steps {
-                bat '''
-                    "%VERSIONBATCHER%" -version="%VERSION_MAJOR%.%VERSION_MINOR%.%BUILDS_ALL_TIME%"
-                '''
-                bat '''
-                    "%ANDROID_INSTALL_PATH%"
-                '''
+                script{
+                    def BuildInt = '${BUILD_NUMBER}' as int
+                    def SubstructInt = '${SubstructPatchNumberBy}' as int
+
+                    env.VERSION_PATCH = "${BuildInt - SubstructInt}"
+
+                    bat '''
+                    "%VERSIONBATCHER%" -version="%VERSION_MAJOR%.%VERSION_MINOR%.%VERSION_PATCH%"
+                    '''
+                    bat '''
+                        "%ANDROID_INSTALL_PATH%"
+                    '''
+                }
+                
             }
         }
         stage('Build'){
@@ -141,7 +154,7 @@ pipeline {
                     }
 
                     if (params.CreateReleaseVersion == true){
-                        env.WITH_CREATERELEASEPATCH = " -Createreleaseversion=${VERSION_MAJOR}.${VERSION_MINOR}.${BUILDS_ALL_TIME}"
+                        env.WITH_CREATERELEASEPATCH = " -Createreleaseversion=${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
                     }
                     if (params.GeneratePatchFromVersion != ''){
                         env.GENERATEPATCHFROMVERSION = " -generatepatch -basedonreleaseversion=${GeneratePatchFromVersion}"
@@ -199,8 +212,8 @@ pipeline {
                 }
             }
             steps {
-                zip zipFile: "Archive/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILDS_ALL_TIME}.zip", archive: false, dir: 'Build'
-                archiveArtifacts artifacts: "Archive/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILDS_ALL_TIME}.zip", fingerprint: true, onlyIfSuccessful: true
+                zip zipFile: "Archive/${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.zip", archive: false, dir: 'Build'
+                archiveArtifacts artifacts: "Archive/${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.zip", fingerprint: true, onlyIfSuccessful: true
             }
         }
         stage('Upload to Oculus') {
@@ -215,7 +228,7 @@ pipeline {
                         --app_id %OCULUS_APP_ID% ^
                         --app_secret %OCULUS_APP_SECRET% ^
                         --apk Build/%APP_NAME%-Android-Shipping-arm64.apk ^
-                        --obb Build/main.%VERSION_MAJOR%%VERSION_MINOR%%BUILDS_ALL_TIME%.%APP_PREFIX%.%APP_NAME%.obb ^
+                        --obb Build/main.%VERSION_MAJOR%%VERSION_MINOR%%VERSION_PATCH%.%APP_PREFIX%.%APP_NAME%.obb ^
                         --channel %OCULUS_CHANNEL%
                 '''
             }
@@ -227,7 +240,7 @@ pipeline {
                 }
             }
             steps {
-                s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: '${BUCKETNAME}/${DESTINATION_FOLDER}', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: false, noUploadOnFailure: true, selectedRegion: 'eu-north-1', showDirectlyInBrowser: false, sourceFile: "Archive/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILDS_ALL_TIME}.zip", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'vrsim', userMetadata: []
+                s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: '${BUCKETNAME}/${DESTINATION_FOLDER}', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: false, noUploadOnFailure: true, selectedRegion: 'eu-north-1', showDirectlyInBrowser: false, sourceFile: "Archive/${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.zip", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'vrsim', userMetadata: []
             }
         }
         stage('Send Notifiers'){
@@ -240,7 +253,7 @@ pipeline {
                 script {
                     env.NOTIFIER_TEXT = "";
                     if (params.Upload_TO_AWS == true){
-                        env.NOTIFIER_TEXT += "Path: ${DESTINATION_FOLDER}/${VERSION_MAJOR}.${VERSION_MINOR}.${BUILDS_ALL_TIME}.zip"
+                        env.NOTIFIER_TEXT += "Path: ${DESTINATION_FOLDER}/${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.zip"
                         if (params.Upload_To_Oculus == true){
                             env.NOTIFIER_TEXT += "\n"
                         }
@@ -249,7 +262,7 @@ pipeline {
                         env.NOTIFIER_TEXT += "Oculus uploaded to channel: ${OCULUS_CHANNEL}"
                     }
 
-                    discordSend description: "${env.NOTIFIER_TEXT}", footer: "Duration: ${currentBuild.durationString.replace(' and counting', '')}", image: '', link: '', result: 'SUCCESS', scmWebUrl: '', showChangeset: false, thumbnail: '', title: "${env.JOB_NAME}[${VERSION_MAJOR}.${VERSION_MINOR}.${BUILDS_ALL_TIME}] -> Build FINISHED", webhookURL: "${DISCORD_HOOK}"
+                    discordSend description: "${env.NOTIFIER_TEXT}", footer: "Duration: ${currentBuild.durationString.replace(' and counting', '')}", image: '', link: '', result: 'SUCCESS', scmWebUrl: '', showChangeset: false, thumbnail: '', title: "${env.JOB_NAME}[${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}] -> Build FINISHED", webhookURL: "${DISCORD_HOOK}"
                 }
             }
         }
