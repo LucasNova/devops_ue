@@ -86,7 +86,7 @@ pipeline {
                     trim: true
                 )
                 booleanParam(
-                    defaultValue: false,
+                    defaultValue: true,
                     description: 'Create release version?',
                     name: 'CreateReleaseVersion'
                )
@@ -134,7 +134,8 @@ pipeline {
 
                     if (params.CreateReleaseVersion == true){
                         env.WITH_CREATERELEASEPATCH = " -Createreleaseversion=${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}"
-                    } else if (params.GeneratePatchFromVersion != ''){
+                    }
+                    if (params.GeneratePatchFromVersion != ''){
                         env.GENERATEPATCHFROMVERSION = " -generatepatch -basedonreleaseversion=${GeneratePatchFromVersion}"
                     }
 
