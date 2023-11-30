@@ -99,7 +99,7 @@ pipeline {
                     name: 'CreateReleaseVersion'
                )
                 string(
-                    defaultValue: params.SubstructPatchNumberBy ? params.SubstructPatchNumberBy : 0, 
+                    defaultValue: params.SubstructPatchNumberBy ? params.SubstructPatchNumberBy : '0', 
                     name: 'SubstructPatchNumberBy', 
                     trim: true
                 )
