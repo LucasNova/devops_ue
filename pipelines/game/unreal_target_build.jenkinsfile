@@ -135,7 +135,7 @@ pipeline {
                     if (params.CreateReleaseVersion == true){
                         env.WITH_CREATERELEASEPATCH = " -Createreleaseversion=${VERSION_MAJOR}.${VERSION_MINOR}.${BUILD_NUMBER}"
                     } else if (params.GeneratePatchFromVersion != ''){
-                        env.GENERATEPATCHFROMVERSION = " -basedonreleaseversion=${GeneratePatchFromVersion}"
+                        env.GENERATEPATCHFROMVERSION = " -generatepatch -basedonreleaseversion=${GeneratePatchFromVersion}"
                     }
 
                     bat '''
