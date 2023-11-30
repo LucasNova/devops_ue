@@ -33,8 +33,6 @@ pipeline {
         SLACK_CHANNEL = 'tps-game-builds'
         PLATFORM = 'Win64' // ['Android', 'Linux'..]
         CONFIG = 'Development' // ['Development', 'Shipping', 'DebugGame']
-        VERSION_MAJOR = "1"
-        VERSION_MINOR = "0"
         VERSIONBATCHER = "$BUILD_DIR\\Script\VersionBatcher.bat"
         BUCKETNAME = ""
         DESTINATION_FOLDER = ""
@@ -53,6 +51,16 @@ pipeline {
                 string(
                     defaultValue: 'code', 
                     name: 'GIT_BRANCH_GAME', 
+                    trim: true
+                )
+                string(
+                    name: 'VERSION_MAJOR', 
+                    defaultValue: params.VERSION_MAJOR ? params.VERSION_MAJOR : '1', 
+                    trim: true
+                )
+                string(
+                    name: 'VERSION_MINOR', 
+                    defaultValue: params.VERSION_MINOR ? params.VERSION_MINOR : '0',
                     trim: true
                 )
                 booleanParam(
@@ -81,7 +89,7 @@ pipeline {
                     name: 'DISTRIBUTION'
                )
                 string(
-                    defaultValue: '1.2.', 
+                    defaultValue: params.GeneratePatchFromVersion ? params.GeneratePatchFromVersion : '1.0.0', 
                     name: 'GeneratePatchFromVersion', 
                     trim: true
                 )
