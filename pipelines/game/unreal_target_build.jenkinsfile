@@ -131,10 +131,10 @@ pipeline {
         stage('Prepare') {
             steps {
                 script{
-                    def BuildInt = '${BUILD_NUMBER}' as int
-                    def SubstructInt = '${SubstructPatchNumberBy}' as int
+                    def BuildInt = BUILD_NUMBER as int
+                    def SubstructInt = params.SubstructPatchNumberBy as int
 
-                    env.VERSION_PATCH = "${BuildInt - SubstructInt}"
+                    env.VERSION_PATCH = BuildInt - SubstructInt
 
                     bat '''
                     "%VERSIONBATCHER%" -version="%VERSION_MAJOR%.%VERSION_MINOR%.%VERSION_PATCH%"
