@@ -3,7 +3,7 @@ def NOTIFIER_TEXT = ""
 def WITH_CREATERELEASEPATCH = ""
 def GENERATEPATCHFROMVERSION = ""
 def VERSION_PATCH = ""
-dev VERSIONSTRING = ""
+def VERSIONSTRING = ""
 
 pipeline {
     agent {
