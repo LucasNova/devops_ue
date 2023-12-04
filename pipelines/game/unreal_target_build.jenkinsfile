@@ -207,6 +207,7 @@ pipeline {
                 bat '''
                     cd Build
                     ren WindowsNoEditor Spectator
+                    cd ..
                 '''
             }
         }
