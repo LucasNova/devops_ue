@@ -4,6 +4,7 @@ def WITH_CREATERELEASEPATCH = ""
 def GENERATEPATCHFROMVERSION = ""
 def VERSION_PATCH = ""
 def VERSIONSTRING = ""
+def VERSIONSTRINGFLAT = ""
 
 pipeline {
     agent {
@@ -138,6 +139,7 @@ pipeline {
 
                     env.VERSION_PATCH = BuildInt - SubstructInt
                     env.VERSIONSTRING = params.VERSION_MAJOR + "." + params.VERSION_MINOR + "." + env.VERSION_PATCH
+                    env.VERSIONSTRINGFLAT = params.VERSION_MAJOR + "" + params.VERSION_MINOR + "" + env.VERSION_PATCH
 
                     bat '''
                     "%VERSIONBATCHER%" -version="%VERSIONSTRING%"
@@ -231,7 +233,7 @@ pipeline {
                         --app_id %OCULUS_APP_ID% ^
                         --app_secret %OCULUS_APP_SECRET% ^
                         --apk Build/%APP_NAME%-Android-Shipping-arm64.apk ^
-                        --obb Build/main.%VERSIONSTRING%.%APP_PREFIX%.%APP_NAME%.obb ^
+                        --obb Build/main.%VERSIONSTRINGFLAT%.%APP_PREFIX%.%APP_NAME%.obb ^
                         --channel %OCULUS_CHANNEL%
                 '''
             }
