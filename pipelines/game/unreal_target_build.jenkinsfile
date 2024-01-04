@@ -17,17 +17,16 @@ pipeline {
         ZIP_DIR = "Build\\**\\*.*"
         PLATFORM = 'Win64' // ['Android', 'Linux'..]
         CONFIG = 'Development' // ['Development', 'Shipping', 'DebugGame']
-        P4_DEPOT = //Depo/Mainline/...#head
     }*/
 
     stages {
-        /* stage('P4 sync') {
+        stage('P4 sync') {
             steps {
                 bat '''
-                    "%P4_PATH%" sync %P4_DEPOT%
+                    "%P4_PATH%" sync %BUILD_DIR%...#head --parallel
                 '''
             }
-        } */
+        }
         stage('Build') {
             steps {
                 bat '''
