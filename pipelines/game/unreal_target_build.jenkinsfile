@@ -17,14 +17,14 @@ pipeline {
         ZIP_DIR = "Build\\**\\*.*"
         PLATFORM = 'Win64' // ['Android', 'Linux'..]
         CONFIG = 'Development' // ['Development', 'Shipping', 'DebugGame']
+        WORKSPACE_PROJECT_DIR = 'c:\\Workspace\\ProjectDir'
     }*/
 
     stages {
         stage('P4 sync') {
             steps {
                 bat '''
-                    cd C:\\Workspace
-                    "%P4_PATH%" sync %BUILD_DIR%\\...#head
+                    "%P4_PATH%" sync %WORKSPACE_PROJECT_DIR%\\...#head
                 '''
             }
         }
