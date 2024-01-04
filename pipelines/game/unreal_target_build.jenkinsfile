@@ -23,7 +23,7 @@ pipeline {
         stage('P4 sync') {
             steps {
                 bat '''
-                    cd %BUILD_DIR%
+                    cd C:\\Workspace
                     "%P4_PATH%" sync %BUILD_DIR%\\...#head
                 '''
             }
