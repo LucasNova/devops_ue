@@ -18,14 +18,21 @@ pipeline {
         PLATFORM = 'Win64' // ['Android', 'Linux'..]
         CONFIG = 'Development' // ['Development', 'Shipping', 'DebugGame']
         WORKSPACE_PROJECT_DIR = 'c:\\Workspace\\ProjectDir'
+        PERFORCE_CRED = 'SomeCredName'
+        WORKSPACENAME = 'workspaceproject'
+        
     }*/
 
     stages {
         stage('P4 sync') {
             steps {
-                bat '''
+
+                p4sync charset: 'none', credential: "$PERFORCE_CRED", populate: autoClean(delete: false, modtime: false, parallel: [enable: true, minbytes: '1024', minfiles: '1', threads: '4'], pin: '', quiet: true, replace: true, tidy: false), source: templateSource("$WORKSPACENAME")
+
+                /* bat '''
                     "%P4_PATH%" sync %WORKSPACE_PROJECT_DIR%\\...#head
                 '''
+                */
             }
         }
         stage('Build') {
