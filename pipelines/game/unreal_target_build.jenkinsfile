@@ -196,6 +196,10 @@ pipeline {
                             %BUILD_FLAGS%%GENERATEPATCHFROMVERSIONCMD% -noturnkeyvariables
                         '''
 
+                        bat '''
+                            ren "Build\\WindowsNoEditor\\%APP_NAME%\\Content\\Paks\\%APP_NAME%-WindowsNoEditor_0_P.pak" "%APP_NAME%_%VERSIONSTRING%_P.pak"
+                        '''
+
                         if (params.PLATFORM == 'Win64+Android' || params.PLATFORM == 'Android'){
 
                             if (params.ANDROID_FORCE_SOLID){
@@ -211,7 +215,7 @@ pipeline {
                             -clientconfig="%CONFIG%" ^
                             -serverconfig="%CONFIG%" ^
                             -archivedirectory="%ARCHIVE_PATH%" ^
-                            %BUILD_FLAGS%%WITH_DISTRIBUTION%%WITH_CREATERELEASEPATCH%%GENERATEPATCHFROMVERSIONCMD% -noturnkeyvariables
+                            %BUILD_FLAGS%%WITH_DISTRIBUTION% -noturnkeyvariables
                         '''
                         }
                     }else{
@@ -224,7 +228,7 @@ pipeline {
                             -clientconfig="%CONFIG%" ^
                             -serverconfig="%CONFIG%" ^
                             -archivedirectory="%ARCHIVE_PATH%" ^
-                            %BUILD_FLAGS%%WITH_DISTRIBUTION%%WITH_CREATERELEASEPATCH%%GENERATEPATCHFROMVERSIONCMD% -noturnkeyvariables
+                            %BUILD_FLAGS%%WITH_DISTRIBUTION% -noturnkeyvariables
                         '''
                     }
 
@@ -300,15 +304,15 @@ pipeline {
             }
             steps {
                 bat '''
-                    ren "Releases\\%GeneratePatchFromVersion%\\WindowsNoEditor\\%APP_NAME%-WindowsNoEditor_0_P.pak" "%APP_NAME%_%VERSIONSTRING%_P.pak"
+                    ren "Build\\WindowsNoEditor\\%APP_NAME%\\Content\\Paks\\%APP_NAME%-WindowsNoEditor_0_P.pak" "%APP_NAME%_%VERSIONSTRING%_P.pak"
                 '''
-                echo "Try to transfer file: Releases/${GeneratePatchFromVersion}/WindowsNoEditor/${APP_NAME}_${VERSIONSTRING}_P.pak"
+                echo "Try to transfer file: Build/WindowsNoEditor/${APP_NAME}/Content/Paks/${APP_NAME}_${VERSIONSTRING}_P.pak"
                 ftpPublisher alwaysPublishFromMaster: false,
                              continueOnError: false,
                              failOnError: false,
                              masterNodeName: '',
                              paramPublish: null,
-                             publishers: [[configName: 'XRBody FTP Server', transfers: [[asciiMode: false, cleanRemote: false, excludes: '', flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: "Releases/${env.GeneratePatchFromVersion}/WindowsNoEditor", sourceFiles: "Releases/${env.GeneratePatchFromVersion}/WindowsNoEditor/${env.APP_NAME}_${env.VERSIONSTRING}_P.pak"]], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: true]]
+                             publishers: [[configName: 'XRBody FTP Server', transfers: [[asciiMode: false, cleanRemote: false, excludes: '', flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: "Build/WindowsNoEditor/${APP_NAME}/Content/Paks", sourceFiles: "Build/WindowsNoEditor/${APP_NAME}/Content/Paks/${APP_NAME}_${VERSIONSTRING}_P.pak"]], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: true]]
             }
         }
         stage('Upload to AWS') {
