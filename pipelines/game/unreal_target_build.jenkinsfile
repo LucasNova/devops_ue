@@ -304,15 +304,15 @@ pipeline {
             }
             steps {
                 bat '''
-                    ren "Build\\WindowsNoEditor\\%APP_NAME%\\Content\\Paks\\%APP_NAME%-WindowsNoEditor_0_P.pak" "%APP_NAME%_%VERSIONSTRING%_P.pak"
+                    ren "Build\\Spectator\\%APP_NAME%\\Content\\Paks\\%APP_NAME%-WindowsNoEditor_0_P.pak" "%APP_NAME%_%VERSIONSTRING%_P.pak"
                 '''
-                echo "Try to transfer file: Build/WindowsNoEditor/${APP_NAME}/Content/Paks/${APP_NAME}_${VERSIONSTRING}_P.pak"
+                echo "Try to transfer file: Build/Spectator/${APP_NAME}/Content/Paks/${APP_NAME}_${VERSIONSTRING}_P.pak"
                 ftpPublisher alwaysPublishFromMaster: false,
                              continueOnError: false,
                              failOnError: false,
                              masterNodeName: '',
                              paramPublish: null,
-                             publishers: [[configName: 'XRBody FTP Server', transfers: [[asciiMode: false, cleanRemote: false, excludes: '', flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: "Build/WindowsNoEditor/${APP_NAME}/Content/Paks", sourceFiles: "Build/WindowsNoEditor/${APP_NAME}/Content/Paks/${APP_NAME}_${VERSIONSTRING}_P.pak"]], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: true]]
+                             publishers: [[configName: 'XRBody FTP Server', transfers: [[asciiMode: false, cleanRemote: false, excludes: '', flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: "Build/Spectator/${APP_NAME}/Content/Paks", sourceFiles: "Build/Spectator/${APP_NAME}/Content/Paks/${APP_NAME}_${VERSIONSTRING}_P.pak"]], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: true]]
             }
         }
         stage('Upload to AWS') {
