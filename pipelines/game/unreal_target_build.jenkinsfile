@@ -187,12 +187,14 @@ pipeline {
                             %BUILD_FLAGS%%WITH_DISTRIBUTION%%WITH_CREATERELEASEPATCH%%GENERATEPATCHFROMVERSIONCMD% -noturnkeyvariables
                         '''
 
-                        if (params.ANDROID_FORCE_SOLID){
-                            env.WITH_CREATERELEASEPATCH = "";
-                            env.GENERATEPATCHFROMVERSIONCMD = "";
-                        }
+                        if (params.PLATFORM == 'Win64+Android' || params.PLATFORM == 'Android'){
 
-                        bat '''
+                            if (params.ANDROID_FORCE_SOLID){
+                                env.WITH_CREATERELEASEPATCH = "";
+                                env.GENERATEPATCHFROMVERSIONCMD = "";
+                            }
+
+                            bat '''
                             "%UAT_PATH%" BuildCookRun ^
                             -project="%PROJECT_PATH%" ^
                             -platform="Android" ^
@@ -202,7 +204,7 @@ pipeline {
                             -archivedirectory="%ARCHIVE_PATH%" ^
                             %BUILD_FLAGS%%WITH_DISTRIBUTION%%WITH_CREATERELEASEPATCH%%GENERATEPATCHFROMVERSIONCMD% -noturnkeyvariables
                         '''
-
+                        }
                     }else{
 
                         bat '''
