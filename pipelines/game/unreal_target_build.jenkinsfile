@@ -303,9 +303,6 @@ pipeline {
                 }
             }
             steps {
-                bat '''
-                    ren "Build\\Spectator\\%APP_NAME%\\Content\\Paks\\%APP_NAME%-WindowsNoEditor_0_P.pak" "%APP_NAME%_%VERSIONSTRING%_P.pak"
-                '''
                 echo "Try to transfer file: Build/Spectator/${APP_NAME}/Content/Paks/${APP_NAME}_${VERSIONSTRING}_P.pak"
                 ftpPublisher alwaysPublishFromMaster: false,
                              continueOnError: false,
