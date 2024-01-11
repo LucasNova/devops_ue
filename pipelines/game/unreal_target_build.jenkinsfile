@@ -289,14 +289,14 @@ pipeline {
             }
             steps {
                 bat '''
-                    move "Releases/%GeneratePatchFromVersion%/WindowsNoEditor/*_P.pak" "Patches/%VERSIONSTRING%_P.pak"
+                    ren "Releases/%GeneratePatchFromVersion%/WindowsNoEditor/%APP_NAME%-WindowsNoEditor_0_P.pak" "%APP_NAME%_%VERSIONSTRING%_P.pak"
                 '''
                 ftpPublisher alwaysPublishFromMaster: false,
                              continueOnError: false,
                              failOnError: false,
                              masterNodeName: '',
                              paramPublish: null,
-                             publishers: [[configName: 'XRBody FTP Server', transfers: [[asciiMode: false, cleanRemote: false, excludes: '', flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: 'Patches', sourceFiles: 'Patches/${env.VERSIONSTRING}_P.pak']], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false]]
+                             publishers: [[configName: 'XRBody FTP Server', transfers: [[asciiMode: false, cleanRemote: false, excludes: '', flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: 'Releases/${env.GeneratePatchFromVersion}/WindowsNoEditor', sourceFiles: 'Releases/${env.GeneratePatchFromVersion}/WindowsNoEditor/${env.APP_NAME}_${env.VERSIONSTRING}_P.pak']], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false]]
             }
         }
         stage('Upload to AWS') {
