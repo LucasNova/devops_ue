@@ -291,6 +291,7 @@ pipeline {
                 bat '''
                     ren "Releases\\%GeneratePatchFromVersion%\\WindowsNoEditor\\%APP_NAME%-WindowsNoEditor_0_P.pak" "%APP_NAME%_%VERSIONSTRING%_P.pak"
                 '''
+                echo 'Try to transfer file: Releases/${GeneratePatchFromVersion}/WindowsNoEditor/${APP_NAME}_${VERSIONSTRING}_P.pak'
                 ftpPublisher alwaysPublishFromMaster: false,
                              continueOnError: false,
                              failOnError: false,
