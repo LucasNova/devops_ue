@@ -180,11 +180,20 @@ pipeline {
                             "%UAT_PATH%" BuildCookRun ^
                             -project="%PROJECT_PATH%" ^
                             -platform="Win64" ^
-                            -cookflavor=ASTC ^
                             -clientconfig="%CONFIG%" ^
                             -serverconfig="%CONFIG%" ^
                             -archivedirectory="%ARCHIVE_PATH%" ^
-                            %BUILD_FLAGS%%WITH_DISTRIBUTION%%WITH_CREATERELEASEPATCH%%GENERATEPATCHFROMVERSIONCMD% -noturnkeyvariables
+                            %BUILD_FLAGS%%WITH_DISTRIBUTION%%WITH_CREATERELEASEPATCH% -noturnkeyvariables
+                        '''
+
+                        bat '''
+                            "%UAT_PATH%" BuildCookRun ^
+                            -project="%PROJECT_PATH%" ^
+                            -platform="Win64" ^
+                            -clientconfig="%CONFIG%" ^
+                            -serverconfig="%CONFIG%" ^
+                            -archivedirectory="%ARCHIVE_PATH%" ^
+                            %BUILD_FLAGS%%GENERATEPATCHFROMVERSIONCMD% -noturnkeyvariables
                         '''
 
                         if (params.PLATFORM == 'Win64+Android' || params.PLATFORM == 'Android'){
@@ -300,9 +309,6 @@ pipeline {
                              masterNodeName: '',
                              paramPublish: null,
                              publishers: [[configName: 'XRBody FTP Server', transfers: [[asciiMode: false, cleanRemote: false, excludes: '', flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: "Releases/${env.GeneratePatchFromVersion}/WindowsNoEditor", sourceFiles: "Releases/${env.GeneratePatchFromVersion}/WindowsNoEditor/${env.APP_NAME}_${env.VERSIONSTRING}_P.pak"]], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: true]]
-                bat '''
-                    move "Releases\\%GeneratePatchFromVersion%\\WindowsNoEditor\\*.pak" "Releases\\%VERSIONSTRING%\\WindowsNoEditor"
-                '''
             }
         }
         stage('Upload to AWS') {
