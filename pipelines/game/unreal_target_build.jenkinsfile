@@ -1,7 +1,7 @@
 def WITH_DISTRIBUTION = ""
 def NOTIFIER_TEXT = ""
 def WITH_CREATERELEASEPATCH = ""
-def GENERATEPATCHFROMVERSION = ""
+def GENERATEPATCHFROMVERSIONCMD = ""
 def VERSION_PATCH = ""
 def VERSIONSTRING = ""
 def VERSIONSTRINGFLAT = ""
@@ -172,7 +172,7 @@ pipeline {
                         env.WITH_CREATERELEASEPATCH = " -Createreleaseversion=${env.VERSIONSTRING}"
                     }
                     if (params.GeneratePatchFromVersion != ''){
-                        env.GENERATEPATCHFROMVERSION = " -generatepatch -basedonreleaseversion=${GeneratePatchFromVersion}"
+                        env.GENERATEPATCHFROMVERSIONCMD = " -generatepatch -basedonreleaseversion=${GeneratePatchFromVersion}"
                     }
                     if (params.SEPARATE_BUILD){
 
@@ -184,12 +184,12 @@ pipeline {
                             -clientconfig="%CONFIG%" ^
                             -serverconfig="%CONFIG%" ^
                             -archivedirectory="%ARCHIVE_PATH%" ^
-                            %BUILD_FLAGS%%WITH_DISTRIBUTION%%WITH_CREATERELEASEPATCH%%GENERATEPATCHFROMVERSION% -noturnkeyvariables
+                            %BUILD_FLAGS%%WITH_DISTRIBUTION%%WITH_CREATERELEASEPATCH%%GENERATEPATCHFROMVERSIONCMD% -noturnkeyvariables
                         '''
 
                         if (params.ANDROID_FORCE_SOLID){
                             env.WITH_CREATERELEASEPATCH = "";
-                            env.GENERATEPATCHFROMVERSION = "";
+                            env.GENERATEPATCHFROMVERSIONCMD = "";
                         }
 
                         bat '''
@@ -200,7 +200,7 @@ pipeline {
                             -clientconfig="%CONFIG%" ^
                             -serverconfig="%CONFIG%" ^
                             -archivedirectory="%ARCHIVE_PATH%" ^
-                            %BUILD_FLAGS%%WITH_DISTRIBUTION%%WITH_CREATERELEASEPATCH%%GENERATEPATCHFROMVERSION% -noturnkeyvariables
+                            %BUILD_FLAGS%%WITH_DISTRIBUTION%%WITH_CREATERELEASEPATCH%%GENERATEPATCHFROMVERSIONCMD% -noturnkeyvariables
                         '''
 
                     }else{
@@ -213,7 +213,7 @@ pipeline {
                             -clientconfig="%CONFIG%" ^
                             -serverconfig="%CONFIG%" ^
                             -archivedirectory="%ARCHIVE_PATH%" ^
-                            %BUILD_FLAGS%%WITH_DISTRIBUTION%%WITH_CREATERELEASEPATCH%%GENERATEPATCHFROMVERSION% -noturnkeyvariables
+                            %BUILD_FLAGS%%WITH_DISTRIBUTION%%WITH_CREATERELEASEPATCH%%GENERATEPATCHFROMVERSIONCMD% -noturnkeyvariables
                         '''
                     }
 
