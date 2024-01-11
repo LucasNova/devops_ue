@@ -47,6 +47,16 @@ pipeline {
                     choices: ['Win64+Android', 'Android', 'Win64' ], 
                     name: 'PLATFORM'
                 )
+                booleanParam(
+                    defaultValue: true, 
+                    description: 'Build for platforms will be runned separate by each other', 
+                    name: 'SEPARATE_BUILD'
+                )
+                booleanParam(
+                    defaultValue: true, 
+                    description: 'When build a separate, then don't create any release or patches for android build', 
+                    name: 'ANDROID_FORCE_SOLID'
+                )
                 choice(
                     choices: ['Shipping', 'Development', 'DebugGame' ], 
                     name: 'CONFIG'
@@ -164,17 +174,49 @@ pipeline {
                     if (params.GeneratePatchFromVersion != ''){
                         env.GENERATEPATCHFROMVERSION = " -generatepatch -basedonreleaseversion=${GeneratePatchFromVersion}"
                     }
+                    if (params.SEPARATE_BUILD){
 
-                    bat '''
-                        "%UAT_PATH%" BuildCookRun ^
-                        -project="%PROJECT_PATH%" ^
-                        -platform="%PLATFORM%" ^
-                        -cookflavor=ASTC ^
-                        -clientconfig="%CONFIG%" ^
-                        -serverconfig="%CONFIG%" ^
-                        -archivedirectory="%ARCHIVE_PATH%" ^
-                        %BUILD_FLAGS%%WITH_DISTRIBUTION%%WITH_CREATERELEASEPATCH%%GENERATEPATCHFROMVERSION% -noturnkeyvariables
-                    '''
+                        bat '''
+                            "%UAT_PATH%" BuildCookRun ^
+                            -project="%PROJECT_PATH%" ^
+                            -platform="Win64" ^
+                            -cookflavor=ASTC ^
+                            -clientconfig="%CONFIG%" ^
+                            -serverconfig="%CONFIG%" ^
+                            -archivedirectory="%ARCHIVE_PATH%" ^
+                            %BUILD_FLAGS%%WITH_DISTRIBUTION%%WITH_CREATERELEASEPATCH%%GENERATEPATCHFROMVERSION% -noturnkeyvariables
+                        '''
+
+                        if (params.ANDROID_FORCE_SOLID){
+                            env.WITH_CREATERELEASEPATCH = "";
+                            env.GENERATEPATCHFROMVERSION = "";
+                        }
+
+                        bat '''
+                            "%UAT_PATH%" BuildCookRun ^
+                            -project="%PROJECT_PATH%" ^
+                            -platform="Android" ^
+                            -cookflavor=ASTC ^
+                            -clientconfig="%CONFIG%" ^
+                            -serverconfig="%CONFIG%" ^
+                            -archivedirectory="%ARCHIVE_PATH%" ^
+                            %BUILD_FLAGS%%WITH_DISTRIBUTION%%WITH_CREATERELEASEPATCH%%GENERATEPATCHFROMVERSION% -noturnkeyvariables
+                        '''
+
+                    }else{
+
+                        bat '''
+                            "%UAT_PATH%" BuildCookRun ^
+                            -project="%PROJECT_PATH%" ^
+                            -platform="%PLATFORM%" ^
+                            -cookflavor=ASTC ^
+                            -clientconfig="%CONFIG%" ^
+                            -serverconfig="%CONFIG%" ^
+                            -archivedirectory="%ARCHIVE_PATH%" ^
+                            %BUILD_FLAGS%%WITH_DISTRIBUTION%%WITH_CREATERELEASEPATCH%%GENERATEPATCHFROMVERSION% -noturnkeyvariables
+                        '''
+                    }
+
                 }
             }
         }
@@ -237,6 +279,16 @@ pipeline {
                         --obb Build/main.%VERSIONSTRINGFLAT%.%APP_PREFIX%.%APP_NAME%.obb ^
                         --channel %OCULUS_CHANNEL%
                 '''
+            }
+        }
+        stage('Upload patch to FTP') {
+            when {
+                expression {
+                    return params.GeneratePatchFromVersion != ''
+                }
+            }
+            steps {
+                ftpPublisher alwaysPublishFromMaster: false, continueOnError: false, failOnError: false, publishers: [[configName: 'XRBody FTP Server', transfers: [[asciiMode: false, cleanRemote: false, excludes: '', flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: 'Releases**', sourceFiles: 'Releases**/*.pak']], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false]]
             }
         }
         stage('Upload to AWS') {
