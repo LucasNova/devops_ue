@@ -293,7 +293,7 @@ pipeline {
                              failOnError: false,
                              masterNodeName: '',
                              paramPublish: null,
-                             publishers: [[configName: 'XRBody FTP Server', transfers: [[asciiMode: false, cleanRemote: false, excludes: '', flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: 'Releases**', sourceFiles: 'Releases**/*.pak']], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false]]
+                             publishers: [[configName: 'XRBody FTP Server', transfers: [[asciiMode: false, cleanRemote: false, excludes: '', flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: 'Releases', sourceFiles: 'Releases/${env.VERSIONSTRING}/*.pak']], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false]]
             }
         }
         stage('Upload to AWS') {
