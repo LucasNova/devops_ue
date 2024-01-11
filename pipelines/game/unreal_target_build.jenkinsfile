@@ -54,7 +54,7 @@ pipeline {
                 )
                 booleanParam(
                     defaultValue: true, 
-                    description: 'When build a separate, then don't create any release or patches for android build', 
+                    description: 'When build a separate, then dont create any release or patches for android build', 
                     name: 'ANDROID_FORCE_SOLID'
                 )
                 choice(
