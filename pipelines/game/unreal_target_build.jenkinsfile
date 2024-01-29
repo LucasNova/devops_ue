@@ -88,7 +88,7 @@ pipeline {
                     name: 'NEED_ARCHIVE'
                 )
                 booleanParam(
-                    defaultValue: true, 
+                    defaultValue: false, 
                     description: 'Upload build to AWS S3?', 
                     name: 'Upload_TO_AWS'
                 )
