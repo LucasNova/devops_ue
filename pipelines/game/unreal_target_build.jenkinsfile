@@ -336,6 +336,12 @@ pipeline {
                     env.NOTIFIER_TEXT = "";
                     if (params.Upload_TO_AWS == true){
                         env.NOTIFIER_TEXT += "Path: ${DESTINATION_FOLDER}/${env.VERSIONSTRING}.zip"
+                        if (params.Upload_To_Oculus == true || params.GeneratePatchFromVersion != ''){
+                            env.NOTIFIER_TEXT += "\n"
+                        }
+                    }
+                    if (params.GeneratePatchFromVersion != ''){
+                        env.NOTIFIER_TEXT += "Patch for spectator uploaded to FTP"
                         if (params.Upload_To_Oculus == true){
                             env.NOTIFIER_TEXT += "\n"
                         }
