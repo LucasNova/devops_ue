@@ -248,7 +248,8 @@ pipeline {
                     '''
                 }
                 bat '''
-                    "%PATCHGENERATOR%" build -b %VERSIONSTRING%
+                    cd PatchSystem\\Admin
+                    MHLab.Patch.Admin.exe build -b %VERSIONSTRING%
                 '''
             }
         }
