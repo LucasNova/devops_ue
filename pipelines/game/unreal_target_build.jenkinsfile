@@ -243,7 +243,7 @@ pipeline {
                     rmdir /S /Q PatchSystem\\Admin\\App
                 '''
                 bat '''
-                    robocopy "Build\\Spectator" "PatchSystem\\Admin\\App" -e
+                    robocopy /s "Build\\Spectator" "PatchSystem\\Admin\\App" -e
                 '''
                 bat '''
                     "%PATCHGENERATOR%" build -b %VERSIONSTRING%
