@@ -215,23 +215,6 @@ pipeline {
                 archiveArtifacts artifacts: "Archive/${env.VERSIONSTRING}.zip", fingerprint: true, onlyIfSuccessful: true
             }
         }
-        stage('Upload to Oculus') {
-            when {
-                expression { 
-                    return params.Upload_To_Oculus == true
-                }
-            }
-            steps {
-                bat '''
-                        "%OVR_UTIL%" upload-quest-build ^
-                        --app_id %OCULUS_APP_ID% ^
-                        --app_secret %OCULUS_APP_SECRET% ^
-                        --apk Build/%APP_NAME%-Android-Shipping-arm64.apk ^
-                        --obb Build/main.%VERSIONSTRINGFLAT%.%APP_PREFIX%.%APP_NAME%.obb ^
-                        --channel %OCULUS_CHANNEL%
-                '''
-            }
-        }
         stage('Generate patch build') {
             when {
                 expression { 
@@ -309,6 +292,23 @@ pipeline {
             }
             steps {
                 s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: '${BUCKETNAME}/${DESTINATION_FOLDER}', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: false, noUploadOnFailure: true, selectedRegion: 'eu-north-1', showDirectlyInBrowser: false, sourceFile: "Archive/${env.VERSIONSTRING}.zip", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'vrsim', userMetadata: []
+            }
+        }
+        stage('Upload to Oculus') {
+            when {
+                expression { 
+                    return params.Upload_To_Oculus == true
+                }
+            }
+            steps {
+                bat '''
+                        "%OVR_UTIL%" upload-quest-build ^
+                        --app_id %OCULUS_APP_ID% ^
+                        --app_secret %OCULUS_APP_SECRET% ^
+                        --apk Build/%APP_NAME%-Android-Shipping-arm64.apk ^
+                        --obb Build/main.%VERSIONSTRINGFLAT%.%APP_PREFIX%.%APP_NAME%.obb ^
+                        --channel %OCULUS_CHANNEL%
+                '''
             }
         }
         stage('Send Notifiers'){
