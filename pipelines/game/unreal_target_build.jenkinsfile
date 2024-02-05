@@ -1,10 +1,9 @@
 def WITH_DISTRIBUTION = ""
 def NOTIFIER_TEXT = ""
-def WITH_CREATERELEASEPATCH = ""
-def GENERATEPATCHFROMVERSIONCMD = ""
 def VERSION_PATCH = ""
 def VERSIONSTRING = ""
 def VERSIONSTRINGFLAT = ""
+def GENERATEPATCHFROMVERSION = ""
 
 pipeline {
     agent {
@@ -40,23 +39,14 @@ pipeline {
         BUCKETNAME = ""
         DESTINATION_FOLDER = ""
         DISCORD_HOOK = "url"
-        FTP_REMOVE_DIR = "SomDir/Dir"
+        FTP_REMOTE_DIR = "SomDir/Dir"
+        PATCHGENERATOR = "$BUILD_DIR\\PatchSystem\\Admin\\MHLab.Patch.Admin.exe"
     }*/
 
     parameters {
                 choice(
                     choices: ['Win64+Android', 'Android', 'Win64' ], 
                     name: 'PLATFORM'
-                )
-                booleanParam(
-                    defaultValue: true, 
-                    description: 'Build for platforms will be runned separate by each other', 
-                    name: 'SEPARATE_BUILD'
-                )
-                booleanParam(
-                    defaultValue: true, 
-                    description: 'When build a separate, then dont create any release or patches for android build', 
-                    name: 'ANDROID_FORCE_SOLID'
                 )
                 choice(
                     choices: ['Shipping', 'Development', 'DebugGame' ], 
@@ -102,21 +92,21 @@ pipeline {
                     description: 'Sign app by keystore?',
                     name: 'DISTRIBUTION'
                )
-                string(
-                    defaultValue: params.GeneratePatchFromVersion ? params.GeneratePatchFromVersion : '1.0.0', 
-                    name: 'GeneratePatchFromVersion', 
-                    trim: true
-                )
-                booleanParam(
+               booleanParam(
                     defaultValue: true,
-                    description: 'Create release version?',
-                    name: 'CreateReleaseVersion'
+                    description: 'Should generate patch build for spectator',
+                    name: 'GeneratePatchBuild'
                )
-                string(
+               string(
+                    defaultValue: params.GeneratePatchFrom ? params.GeneratePatchFrom : '', 
+                    name: 'GeneratePatchFrom', 
+                    trim: true
+               )
+               string(
                     defaultValue: params.SubstructPatchNumberBy ? params.SubstructPatchNumberBy : '0', 
                     name: 'SubstructPatchNumberBy', 
                     trim: true
-                )
+               )
             }
 
     stages {
@@ -168,73 +158,16 @@ pipeline {
                     if (params.DISTRIBUTION == true){
                         env.WITH_DISTRIBUTION = " -distribution"
                     }
-
-                    if (params.CreateReleaseVersion == true){
-                        env.WITH_CREATERELEASEPATCH = " -Createreleaseversion=${env.VERSIONSTRING}"
-                    }
-                    if (params.GeneratePatchFromVersion != ''){
-                        env.GENERATEPATCHFROMVERSIONCMD = " -generatepatch -basedonreleaseversion=${GeneratePatchFromVersion}"
-                    }
-                    if (params.SEPARATE_BUILD){
-
-                        bat '''
-                            "%UAT_PATH%" BuildCookRun ^
-                            -project="%PROJECT_PATH%" ^
-                            -platform="Win64" ^
-                            -clientconfig="%CONFIG%" ^
-                            -serverconfig="%CONFIG%" ^
-                            -archivedirectory="%ARCHIVE_PATH%" ^
-                            %BUILD_FLAGS%%WITH_DISTRIBUTION%%WITH_CREATERELEASEPATCH% -noturnkeyvariables
-                        '''
-
-                        bat '''
-                            "%UAT_PATH%" BuildCookRun ^
-                            -project="%PROJECT_PATH%" ^
-                            -platform="Win64" ^
-                            -clientconfig="%CONFIG%" ^
-                            -serverconfig="%CONFIG%" ^
-                            -archivedirectory="%ARCHIVE_PATH%" ^
-                            %BUILD_FLAGS%%GENERATEPATCHFROMVERSIONCMD% -noturnkeyvariables
-                        '''
-
-                        if (params.GeneratePatchFromVersion != ''){
-                            bat '''
-                                ren "Build\\WindowsNoEditor\\%APP_NAME%\\Content\\Paks\\%APP_NAME%-WindowsNoEditor_0_P.pak" "%APP_NAME%_%VERSIONSTRING%_P.pak"
-                            '''
-                        }
-
-                        if (params.PLATFORM == 'Win64+Android' || params.PLATFORM == 'Android'){
-
-                            if (params.ANDROID_FORCE_SOLID){
-                                env.WITH_CREATERELEASEPATCH = "";
-                                env.GENERATEPATCHFROMVERSIONCMD = "";
-                            }
-
-                            bat '''
-                            "%UAT_PATH%" BuildCookRun ^
-                            -project="%PROJECT_PATH%" ^
-                            -platform="Android" ^
-                            -cookflavor=ASTC ^
-                            -clientconfig="%CONFIG%" ^
-                            -serverconfig="%CONFIG%" ^
-                            -archivedirectory="%ARCHIVE_PATH%" ^
-                            %BUILD_FLAGS%%WITH_DISTRIBUTION% -noturnkeyvariables
-                        '''
-                        }
-                    }else{
-
-                        bat '''
-                            "%UAT_PATH%" BuildCookRun ^
-                            -project="%PROJECT_PATH%" ^
-                            -platform="%PLATFORM%" ^
-                            -cookflavor=ASTC ^
-                            -clientconfig="%CONFIG%" ^
-                            -serverconfig="%CONFIG%" ^
-                            -archivedirectory="%ARCHIVE_PATH%" ^
-                            %BUILD_FLAGS%%WITH_DISTRIBUTION% -noturnkeyvariables
-                        '''
-                    }
-
+                    bat '''
+                        "%UAT_PATH%" BuildCookRun ^
+                        -project="%PROJECT_PATH%" ^
+                        -platform="%PLATFORM%" ^
+                        -cookflavor=ASTC ^
+                        -clientconfig="%CONFIG%" ^
+                        -serverconfig="%CONFIG%" ^
+                        -archivedirectory="%ARCHIVE_PATH%" ^
+                        %BUILD_FLAGS%%WITH_DISTRIBUTION% -noturnkeyvariables
+                    '''
                 }
             }
         }
@@ -299,20 +232,67 @@ pipeline {
                 '''
             }
         }
-        stage('Upload patch to FTP') {
+        stage('Generate patch build') {
             when {
-                expression {
-                    return params.GeneratePatchFromVersion != ''
+                expression { 
+                    return params.GeneratePatchBuild == true
                 }
             }
             steps {
-                echo "Try to transfer file: Build/Spectator/${APP_NAME}/Content/Paks/${APP_NAME}_${env.VERSIONSTRING}_P.pak"
+                bat '''
+                    rmdir /S /Q PatchSystem\\Admin\\App
+                '''
+                bat '''
+                    robocopy "Build\Spectator" "PatchSystem\Admin\App" -e
+                '''
+                bat '''
+                    "%PATCHGENERATOR%" build -b %VERSIONSTRING%
+                '''
+            }
+        }
+        stage('Generate patch') {
+            when {
+                expression { 
+                    return params.GeneratePatchFrom != ''
+                }
+            }
+            steps {
+                env.GENERATEPATCHFROMVERSION = params.GeneratePatchFrom;
+ 
+                bat '''
+                    "%PATCHGENERATOR%" patch --from %GENERATEPATCHFROMVERSION% --to %VERSIONSTRING%
+                '''
+            }
+        }
+        stage('Upload patch builds to FTP') {
+            when {
+                expression {
+                    return params.GeneratePatchBuild == true
+                }
+            }
+            steps {
                 ftpPublisher alwaysPublishFromMaster: false,
                              continueOnError: false,
                              failOnError: false,
                              masterNodeName: '',
                              paramPublish: null,
-                             publishers: [[configName: 'XRBody FTP Server', transfers: [[asciiMode: false, cleanRemote: false, excludes: '', flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: "${FTP_REMOVE_DIR}", remoteDirectorySDF: false, removePrefix: "Build/Spectator/${APP_NAME}/Content/Paks", sourceFiles: "Build/Spectator/${APP_NAME}/Content/Paks/${APP_NAME}_${env.VERSIONSTRING}_P.pak"]], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: true]]
+                             publishers: [[configName: 'XRBody FTP Server', transfers: [[asciiMode: false, cleanRemote: false, excludes: '', flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: "${FTP_REMOTE_DIR}", remoteDirectorySDF: false, removePrefix: "PatchSystem/Admin", sourceFiles: "PatchSystem/Admin/Builds/**"]], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: true]]
+
+            }
+        }
+        stage('Upload patch to FTP') {
+            when {
+                expression {
+                    return params.GeneratePatchFrom != ''
+                }
+            }
+            steps {
+                ftpPublisher alwaysPublishFromMaster: false,
+                             continueOnError: false,
+                             failOnError: false,
+                             masterNodeName: '',
+                             paramPublish: null,
+                             publishers: [[configName: 'XRBody FTP Server', transfers: [[asciiMode: false, cleanRemote: false, excludes: '', flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: "${FTP_REMOTE_DIR}", remoteDirectorySDF: false, removePrefix: "PatchSystem/Admin", sourceFiles: "PatchSystem/Admin/Patches/**"]], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: true]]
 
             }
         }
@@ -337,12 +317,18 @@ pipeline {
                     env.NOTIFIER_TEXT = "";
                     if (params.Upload_TO_AWS == true){
                         env.NOTIFIER_TEXT += "Path: ${DESTINATION_FOLDER}/${env.VERSIONSTRING}.zip"
-                        if (params.Upload_To_Oculus == true || params.GeneratePatchFromVersion != ''){
+                        if (params.Upload_To_Oculus == true || params.GeneratePatchBuild == true || params.GeneratePatchFrom != ''){
                             env.NOTIFIER_TEXT += "\n"
                         }
                     }
-                    if (params.GeneratePatchFromVersion != ''){
-                        env.NOTIFIER_TEXT += "Patch for spectator uploaded to FTP"
+                    if (params.GeneratePatchBuild == true){
+                        env.NOTIFIER_TEXT += "Build for spectator uploaded to FTP"
+                        if (params.Upload_To_Oculus == true || params.GeneratePatchFrom != ''){
+                            env.NOTIFIER_TEXT += "\n"
+                        }
+                    }
+                    if (params.GeneratePatchFrom != ''){
+                        env.NOTIFIER_TEXT += "Patch Generated for spectator uploaded to FTP"
                         if (params.Upload_To_Oculus == true){
                             env.NOTIFIER_TEXT += "\n"
                         }
