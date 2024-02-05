@@ -239,12 +239,14 @@ pipeline {
                 }
             }
             steps {
-                bat '''
-                    rmdir /S /Q PatchSystem\\Admin\\App
-                '''
-                bat '''
-                    robocopy /s "Build\\Spectator" "PatchSystem\\Admin\\App" -e
-                '''
+                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                    bat '''
+                        rmdir /S /Q PatchSystem\\Admin\\App
+                    '''
+                    bat '''
+                        robocopy /s "Build\\Spectator" "PatchSystem\\Admin\\App" -e
+                    '''
+                }
                 bat '''
                     "%PATCHGENERATOR%" build -b %VERSIONSTRING%
                 '''
