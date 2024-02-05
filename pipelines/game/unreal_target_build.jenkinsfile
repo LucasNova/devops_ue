@@ -247,7 +247,8 @@ pipeline {
                     env.GENERATEPATCHFROMVERSION = params.GeneratePatchFrom;
  
                     bat '''
-                        "%PATCHGENERATOR%" patch --from %GENERATEPATCHFROMVERSION% --to %VERSIONSTRING%
+                        cd PatchSystem\\Admin
+                        MHLab.Patch.Admin.exe patch --from %GENERATEPATCHFROMVERSION% --to %VERSIONSTRING%
                     '''
                 }
             }
@@ -264,7 +265,7 @@ pipeline {
                              failOnError: false,
                              masterNodeName: '',
                              paramPublish: null,
-                             publishers: [[configName: 'XRBody FTP Server', transfers: [[asciiMode: false, cleanRemote: false, excludes: '', flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: "${FTP_REMOTE_DIR}", remoteDirectorySDF: false, removePrefix: "PatchSystem/Admin", sourceFiles: "PatchSystem/Admin/Builds/**"]], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: true]]
+                             publishers: [[configName: 'XRBody FTP Server', transfers: [[asciiMode: false, cleanRemote: false, excludes: '', flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: "${FTP_REMOTE_DIR}", remoteDirectorySDF: false, removePrefix: "PatchSystem/Admin", sourceFiles: "PatchSystem/Admin/Builds/${env.VERSIONSTRING}/**, PatchSystem/Admin/Builds/build_${env.VERSIONSTRING}.json, PatchSystem/Admin/Builds/builds_index.json"]], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: true]]
 
             }
         }
@@ -280,7 +281,7 @@ pipeline {
                              failOnError: false,
                              masterNodeName: '',
                              paramPublish: null,
-                             publishers: [[configName: 'XRBody FTP Server', transfers: [[asciiMode: false, cleanRemote: false, excludes: '', flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: "${FTP_REMOTE_DIR}", remoteDirectorySDF: false, removePrefix: "PatchSystem/Admin", sourceFiles: "PatchSystem/Admin/Patches/**"]], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: true]]
+                             publishers: [[configName: 'XRBody FTP Server', transfers: [[asciiMode: false, cleanRemote: false, excludes: '', flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: "${FTP_REMOTE_DIR}", remoteDirectorySDF: false, removePrefix: "PatchSystem/Admin", sourceFiles: "PatchSystem/Admin/Patches/${env.GENERATEPATCHFROMVERSION}_${env.VERSIONSTRING}.*, PatchSystem/Admin/Patches/patches_index.json"]], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: true]]
 
             }
         }
