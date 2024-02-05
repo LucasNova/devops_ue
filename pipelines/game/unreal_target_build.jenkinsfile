@@ -257,11 +257,13 @@ pipeline {
                 }
             }
             steps {
-                env.GENERATEPATCHFROMVERSION = params.GeneratePatchFrom;
+                script{
+                    env.GENERATEPATCHFROMVERSION = params.GeneratePatchFrom;
  
-                bat '''
-                    "%PATCHGENERATOR%" patch --from %GENERATEPATCHFROMVERSION% --to %VERSIONSTRING%
-                '''
+                    bat '''
+                        "%PATCHGENERATOR%" patch --from %GENERATEPATCHFROMVERSION% --to %VERSIONSTRING%
+                    '''
+                }
             }
         }
         stage('Upload patch builds to FTP') {
