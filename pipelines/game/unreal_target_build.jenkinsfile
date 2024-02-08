@@ -285,6 +285,14 @@ pipeline {
 
             }
         }
+        stage('Clean Old Builds'){
+            steps{
+                bat '''
+                        cd PatchSystem\\clean_data
+                        clean_data.exe
+                    '''
+            }
+        }
         stage('Upload to AWS') {
             when {
                 expression { 
