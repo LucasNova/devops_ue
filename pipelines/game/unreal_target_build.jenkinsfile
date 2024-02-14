@@ -288,7 +288,7 @@ pipeline {
         stage('Clean Old Builds'){
             steps{
                 bat '''
-                        cd PatchSystem\\clean_data
+                        cd PatchSystem\\clean_data\\bin
                         clean_data.exe
                     '''
             }
