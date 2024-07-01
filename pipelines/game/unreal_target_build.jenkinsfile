@@ -53,7 +53,7 @@ pipeline {
                     name: 'CONFIG'
                 )
                 string(
-                    defaultValue: 'code', 
+                    defaultValue: 'oculus', 
                     name: 'GIT_BRANCH_GAME', 
                     trim: true
                 )
